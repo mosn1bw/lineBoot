@@ -1,5 +1,5 @@
 {
-    "name": "nba-linebot",
+    "name": "nba-lineBot",
     "description": "Line Bot API nba",
     "repository": "https://github.com/kunhou/nba-lineBot",
     "keywords": ["Line", "go", "static"],
