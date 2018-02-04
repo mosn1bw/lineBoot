@@ -1,0 +1,37 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "52prqHxrpYiO5L6b9b4NreSYdNc=",
+			"path": "github.com/line/line-bot-sdk-go/linebot",
+			"revision": "d5719649979e73fbf3551b3f277fd6d8f85c887b",
+			"revisionTime": "2018-01-30T07:04:27Z"
+		},
+		{
+			"checksumSHA1": "/+t/C0L81jgAfZCn1wCrF/1+8yw=",
+			"path": "github.com/line/line-bot-sdk-go/linebot/httphandler",
+			"revision": "d5719649979e73fbf3551b3f277fd6d8f85c887b",
+			"revisionTime": "2018-01-30T07:04:27Z"
+		},
+		{
+			"checksumSHA1": "GtamqiJoL7PGHsN454AoffBFMa8=",
+			"path": "golang.org/x/net/context",
+			"revision": "309822c5b9b9f80db67f016069a12628d94fad34",
+			"revisionTime": "2018-02-01T02:25:43Z"
+		},
+		{
+			"checksumSHA1": "WHc3uByvGaMcnSoI21fhzYgbOgg=",
+			"path": "golang.org/x/net/context/ctxhttp",
+			"revision": "309822c5b9b9f80db67f016069a12628d94fad34",
+			"revisionTime": "2018-02-01T02:25:43Z"
+		},
+		{
+			"checksumSHA1": "qOmvuDm+F+2nQQecUZBVkZrTn6Y=",
+			"path": "gopkg.in/yaml.v2",
+			"revision": "d670f9405373e636a5a2765eea47fac0c9bc91a4",
+			"revisionTime": "2018-01-09T11:43:31Z"
+		}
+	],
+	"rootPath": "github.com/patrice/nba-lineBot"
+}
