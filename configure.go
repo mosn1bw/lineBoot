@@ -42,7 +42,7 @@ func init() {
 			log.Fatal("config: config error:", err)
 		}
 	} else {
-		_config.Bind = os.Getenv("Bind")
+		_config.Bind = os.Getenv("PORT")
 		_config.Channel.Secret = os.Getenv("ChannelSecret")
 		_config.Channel.Token = os.Getenv("ChannelAccessToken")
 		_config.Source = map[string]string{
