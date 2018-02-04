@@ -1,0 +1,1 @@
+go build -o nba.o && ./nba.o

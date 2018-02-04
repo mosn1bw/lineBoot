@@ -1,0 +1,4 @@
+*.o
+/app.yml
+/ngrok
+/data.json
