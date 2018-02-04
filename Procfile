@@ -1,1 +1,1 @@
-web: nba-linebot
+web: nba-lineBot
