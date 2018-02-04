@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -65,7 +66,8 @@ func main() {
 
 	// This is just a sample code.
 	// For actually use, you must support HTTPS by using `ListenAndServeTLS`, reverse proxy or etc.
-	if err := http.ListenAndServe(_config.Bind, nil); err != nil {
+	addr := fmt.Sprintf(":%s", _config.Bind)
+	if err := http.ListenAndServe(addr, nil); err != nil {
 		log.Fatal(err)
 	}
 
