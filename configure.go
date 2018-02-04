@@ -19,7 +19,8 @@ type Configuration struct {
 }
 
 var (
-	_config *Configuration
+	_config   *Configuration
+	nbaAPIURL string
 )
 
 func init() {
@@ -49,6 +50,12 @@ func init() {
 			"nba": os.Getenv("SourceURL"),
 		}
 	}
+
+	_, found := _config.Source["nba"]
+	if !found {
+		panic("config url nil")
+	}
+	nbaAPIURL = _config.Source["nba"]
 }
 
 func newConfiguration() *Configuration {

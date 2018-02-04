@@ -7,13 +7,6 @@ import (
 	"time"
 )
 
-func ParseReceiveMsg(msg string) string {
-	var recMsg string
-	recMsg = strings.Trim(msg, " ")
-	recMsg = strings.ToLower(recMsg)
-	return recMsg
-}
-
 func LeftPad2Len(s string, padStr string, overallLen int) string {
 	var padCountInt int
 	padCountInt = 1 + ((overallLen - len(padStr)) / len(padStr))
@@ -31,4 +24,13 @@ func UtcMillis2TimeString(utcMillisStr string, timeFormat string) string {
 	gameTime := time.Unix(utcTimestamp, 0)
 	gameTimeStr := gameTime.Format(timeFormat)
 	return gameTimeStr
+}
+
+func GetLocalTimeNow() (time.Time, error) {
+	now := time.Now()
+	local, err := time.LoadLocation("Asia/Taipei")
+	if err != nil {
+		return now, err
+	}
+	return now.In(local), nil
 }

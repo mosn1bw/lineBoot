@@ -37,17 +37,7 @@ func main() {
 				switch message := event.Message.(type) {
 				case *linebot.TextMessage:
 					receiveMsg := message.Text
-					sendMsg := ""
-					log.Print(receiveMsg)
-					cmdMsg := ParseReceiveMsg(receiveMsg)
-					switch cmdMsg {
-					case "nba":
-						data, err := GetNBATodayData()
-						if err != nil {
-							log.Printf("GetNBATodayData error : %v", err)
-						}
-						sendMsg = data.ParseToMessage()
-					}
+					sendMsg := TextMessageHandler(receiveMsg)
 					if sendMsg != "" {
 						if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(sendMsg)).Do(); err != nil {
 							log.Print(err)
