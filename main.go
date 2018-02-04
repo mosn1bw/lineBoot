@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/line/line-bot-sdk-go/linebot/httphandler"
@@ -63,6 +64,7 @@ func main() {
 	})
 
 	http.Handle("/callback", handler)
+	http.HandleFunc("/", sayhelloName)
 
 	// This is just a sample code.
 	// For actually use, you must support HTTPS by using `ListenAndServeTLS`, reverse proxy or etc.
@@ -77,4 +79,17 @@ func main() {
 	// }
 	// message := data.ParseToMessage()
 	// fmt.Printf("msg: \n %s", message)
+}
+
+func sayhelloName(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()       // parse arguments, you have to call this by yourself
+	fmt.Println(r.Form) // print form information in server side
+	fmt.Println("path", r.URL.Path)
+	fmt.Println("scheme", r.URL.Scheme)
+	fmt.Println(r.Form["url_long"])
+	for k, v := range r.Form {
+		fmt.Println("key:", k)
+		fmt.Println("val:", strings.Join(v, ""))
+	}
+	fmt.Fprintf(w, "Hello astaxie!") // send data to client side
 }
