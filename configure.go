@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 
 	yaml "gopkg.in/yaml.v2"
 )
@@ -19,8 +20,9 @@ type Configuration struct {
 }
 
 var (
-	_config   *Configuration
-	nbaAPIURL string
+	_config    *Configuration
+	_localZone *time.Location
+	nbaAPIURL  string
 )
 
 func init() {
@@ -56,6 +58,11 @@ func init() {
 		panic("config url nil")
 	}
 	nbaAPIURL = _config.Source["nba"]
+
+	_localZone, err = time.LoadLocation("Asia/Taipei")
+	if err != nil {
+		panic(err)
+	}
 }
 
 func newConfiguration() *Configuration {

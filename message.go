@@ -19,7 +19,7 @@ func TextMessageHandler(receiveMsg string) string {
 	}
 	switch cmdMsg {
 	case "":
-		sendMsg = "支援命令: \n   NBA賽事 | NBA今日賽事 | NBA明日賽事"
+		sendMsg = "支援命令: \n   NBA賽事 | NBA今日賽事 | NBA明日賽事 | NBA昨日賽事"
 	case "賽事", "今日賽事":
 		data, err := GetNBAameToday()
 		if err != nil {
@@ -27,11 +27,22 @@ func TextMessageHandler(receiveMsg string) string {
 		}
 		sendMsg = data.ParseToMessage()
 	case "明日賽事":
-		today, err := GetLocalTimeNow()
+		today, err := GetLocalTime(time.Now())
 		if err != nil {
 			log.Printf("GetLocalTimeNow error: %v", err)
 		}
 		tomorrow := today.Add(24 * time.Hour)
+		data, err := GetNBAGameByDate(&tomorrow)
+		if err != nil {
+			log.Printf("GetNBAGameByDate error :%v, %v", tomorrow, err)
+		}
+		sendMsg = data.ParseToMessage()
+	case "昨日賽事":
+		today, err := GetLocalTime(time.Now())
+		if err != nil {
+			log.Printf("GetLocalTimeNow error: %v", err)
+		}
+		tomorrow := today.Add(-24 * time.Hour)
 		data, err := GetNBAGameByDate(&tomorrow)
 		if err != nil {
 			log.Printf("GetNBAGameByDate error :%v, %v", tomorrow, err)

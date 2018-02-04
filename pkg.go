@@ -22,15 +22,11 @@ func UtcMillis2TimeString(utcMillisStr string, timeFormat string) string {
 	}
 	utcTimestamp := utcMillis / 1000
 	gameTime := time.Unix(utcTimestamp, 0)
-	gameTimeStr := gameTime.Format(timeFormat)
+	gameTimeStr := gameTime.In(_localZone).Format(timeFormat)
 	return gameTimeStr
 }
 
-func GetLocalTimeNow() (time.Time, error) {
-	now := time.Now()
-	local, err := time.LoadLocation("Asia/Taipei")
-	if err != nil {
-		return now, err
-	}
-	return now.In(local), nil
+func GetLocalTime(t time.Time) (*time.Time, error) {
+	localTime := t.In(_localZone)
+	return &localTime, nil
 }
