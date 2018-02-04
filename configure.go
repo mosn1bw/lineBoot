@@ -29,6 +29,7 @@ func init() {
 		log.Fatalf("config: file error: %s", err.Error())
 	}
 	configPath := filepath.Join(rootDirPath, "app.yml")
+	_config = newConfiguration()
 	if _, err := os.Stat(configPath); !os.IsNotExist(err) {
 		// config exists
 		file, err := ioutil.ReadFile(configPath)
@@ -36,7 +37,6 @@ func init() {
 			log.Fatalf("config: file error: %s", err.Error())
 		}
 
-		_config = newConfiguration()
 		err = yaml.Unmarshal(file, &_config)
 		if err != nil {
 			log.Fatal("config: config error:", err)
