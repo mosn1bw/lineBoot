@@ -41,6 +41,13 @@ func init() {
 		if err != nil {
 			log.Fatal("config: config error:", err)
 		}
+	} else {
+		_config.Bind = os.Getenv("Bind")
+		_config.Channel.Secret = os.Getenv("ChannelSecret")
+		_config.Channel.Token = os.Getenv("ChannelAccessToken")
+		_config.Source = map[string]string{
+			"nba": os.Getenv("SourceURL"),
+		}
 	}
 }
 
