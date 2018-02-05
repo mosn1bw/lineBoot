@@ -16,7 +16,8 @@ type Configuration struct {
 		Secret string `yaml:"secret"`
 		Token  string `yaml:"token"`
 	} `yaml:"channel"`
-	Source map[string]string
+	Source     map[string]string
+	AppBaseURL string `yaml:"app_base_url"`
 }
 
 var (
@@ -51,6 +52,7 @@ func init() {
 		_config.Source = map[string]string{
 			"nba": os.Getenv("SourceURL"),
 		}
+		_config.AppBaseURL = os.Getenv("AppBaseURL")
 	}
 
 	_, found := _config.Source["nba"]
