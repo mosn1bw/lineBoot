@@ -21,9 +21,10 @@ type Configuration struct {
 }
 
 var (
-	_config    *Configuration
-	_localZone *time.Location
-	nbaAPIURL  string
+	_config             *Configuration
+	_localZone          *time.Location
+	nbaAPIGameURL       string
+	nbaAPIGamePlayerURL string
 )
 
 func init() {
@@ -50,16 +51,22 @@ func init() {
 		_config.Channel.Secret = os.Getenv("ChannelSecret")
 		_config.Channel.Token = os.Getenv("ChannelAccessToken")
 		_config.Source = map[string]string{
-			"nba": os.Getenv("SourceURL"),
+			"nba_game":        os.Getenv("SourceURL"),
+			"nba_game_player": os.Getenv("SourcePlayerURL"),
 		}
 		_config.AppBaseURL = os.Getenv("AppBaseURL")
 	}
 
-	_, found := _config.Source["nba"]
+	var found bool
+	nbaAPIGameURL, found = _config.Source["nba_game"]
 	if !found {
-		panic("config url nil")
+		panic("config nbaAPIGameURL empty")
 	}
-	nbaAPIURL = _config.Source["nba"]
+
+	nbaAPIGamePlayerURL, found = _config.Source["nba_game_player"]
+	if !found {
+		panic("config nbaAPIGamePlayerURL empty")
+	}
 
 	_localZone, err = time.LoadLocation("Asia/Taipei")
 	if err != nil {

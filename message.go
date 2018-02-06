@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -61,6 +62,51 @@ func (app *NBABotClient) Callback(w http.ResponseWriter, r *http.Request) {
 					log.Print(err)
 				}
 			}
+		case linebot.EventTypePostback:
+			data := event.Postback.Data
+			dataArr := strings.Split(data, "@")
+			if len(dataArr) != 2 {
+				return
+			}
+			teamType := dataArr[0]
+			gameID := dataArr[1]
+			pInfo, err := GetNBAGamePlayerByGameID(gameID)
+			if err != nil {
+				log.Printf("GetNBAGamePlayerByGameID err: %v", err)
+				return
+			}
+			sendMseeage := " 球員｜位置\n上場時間｜得分｜籃板｜助攻 \n-----------\n"
+			messageFmt := "%s | %s\n%s | %d | %d | %d \n-----------\n"
+			if teamType == "away" {
+				for _, player := range pInfo.Payload.AwayTeam.GamePlayers {
+					if player.StatTotal.Mins == 0 {
+						continue
+					}
+					name := fmt.Sprintf("%s-%s", player.Profile.FirstName, player.Profile.LastName)
+					position := player.Profile.Position
+					upTime := fmt.Sprintf("%d:%d", player.StatTotal.Mins, player.StatTotal.Secs)
+					points := player.StatTotal.Points
+					rebs := player.StatTotal.Rebs
+					assists := player.StatTotal.Assists
+					sendMseeage += fmt.Sprintf(messageFmt, name, position, upTime, points, rebs, assists)
+				}
+			} else {
+				for _, player := range pInfo.Payload.AwayTeam.GamePlayers {
+					if player.StatTotal.Mins == 0 {
+						continue
+					}
+					name := fmt.Sprintf("%s-%s", player.Profile.FirstName, player.Profile.LastName)
+					position := player.Profile.Position
+					upTime := fmt.Sprintf("%d:%d", player.StatTotal.Mins, player.StatTotal.Secs)
+					points := player.StatTotal.Points
+					rebs := player.StatTotal.Rebs
+					assists := player.StatTotal.Assists
+					sendMseeage += fmt.Sprintf(messageFmt, name, position, upTime, points, rebs, assists)
+				}
+			}
+			if err := app.replyText(event.ReplyToken, sendMseeage); err != nil {
+				log.Print(err)
+			}
 		}
 	}
 }
@@ -70,7 +116,7 @@ const (
 )
 
 func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken string, source *linebot.EventSource) error {
-	sendMsg := ""
+	var sendMsg *linebot.TemplateMessage
 	log.Print(message.Text)
 	cmdMsg, isCmd := parseReceiveMsg(message.Text)
 	if !isCmd {
@@ -113,7 +159,7 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 		if err != nil {
 			log.Printf("GetNBAameToday error : %v", err)
 		}
-		sendMsg = data.ParseToMessage()
+		sendMsg = app.ParseToMessage(data)
 	case "明日賽事":
 		today, err := GetLocalTime(time.Now())
 		if err != nil {
@@ -124,7 +170,7 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 		if err != nil {
 			log.Printf("GetNBAGameByDate error :%v, %v", tomorrow, err)
 		}
-		sendMsg = data.ParseToMessage()
+		sendMsg = app.ParseToMessage(data)
 	case "昨日賽事":
 		today, err := GetLocalTime(time.Now())
 		if err != nil {
@@ -135,12 +181,12 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 		if err != nil {
 			log.Printf("GetNBAGameByDate error :%v, %v", tomorrow, err)
 		}
-		sendMsg = data.ParseToMessage()
+		sendMsg = app.ParseToMessage(data)
 	}
-	if sendMsg != "" {
+	if sendMsg != nil {
 		if _, err := app.bot.ReplyMessage(
 			replyToken,
-			linebot.NewTextMessage(sendMsg),
+			sendMsg,
 		).Do(); err != nil {
 			return err
 		}
@@ -167,4 +213,43 @@ func (app *NBABotClient) replyText(replyToken, text string) error {
 		return err
 	}
 	return nil
+}
+
+func (app *NBABotClient) ParseToMessage(data *GameInfo) *linebot.TemplateMessage {
+	imageURL := app.appBaseURL + "/static/buttons/nba.jpg"
+	columns := []*linebot.CarouselColumn{}
+	message := "     主隊 : 客隊\n"
+	for index, val := range data.Payload.Date.Games {
+		var gameInfo string
+		homeScore := val.Boxscore.HomeScore
+		awayScore := val.Boxscore.AwayScore
+		homeTeamName := val.HomeTeam.Profile.Name
+		awayTeamName := val.AwayTeam.Profile.Name
+		status := val.Boxscore.Status
+		switch status {
+		case "1": // 未開賽
+			gameTimeStr := UtcMillis2TimeString(val.Profile.UtcMillis, DATE_TIME_LAYOUT)
+			gameInfo = fmt.Sprintf("未開賽 | %s ", gameTimeStr)
+		default: //2: 比賽中, 3: 結束
+			gameInfo = fmt.Sprintf(" %3d : %3d | %s %s", homeScore, awayScore, val.Boxscore.StatusDesc, val.Boxscore.PeriodClock)
+			// case "3":
+			// 	gameInfo = fmt.Sprintf(" %3d : %3d | 結束", homeScore, awayScore)
+		}
+		teamMessage := fmt.Sprintf("#%d %s vs %s\n      %s", index+1, homeTeamName, awayTeamName, gameInfo)
+		message += teamMessage + "\n"
+
+		// template
+		teamVS := fmt.Sprintf("#%d %s vs %s", index+1, homeTeamName, awayTeamName)
+		btnName1 := fmt.Sprintf("%s 數據統計", homeTeamName)
+		btnName2 := fmt.Sprintf("%s 數據統計", awayTeamName)
+		column := linebot.NewCarouselColumn(
+			imageURL, teamVS, gameInfo,
+			linebot.NewPostbackTemplateAction(btnName1, "home@"+val.Profile.GameID, ""),
+			linebot.NewPostbackTemplateAction(btnName2, "away@"+val.Profile.GameID, ""),
+		)
+		columns = append(columns, column)
+	}
+	template := linebot.NewCarouselTemplate(columns...)
+
+	return linebot.NewTemplateMessage(message, template)
 }
