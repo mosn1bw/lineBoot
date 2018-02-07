@@ -231,7 +231,7 @@ func (app *NBABotClient) ParseToMessage(data *GameInfo) *linebot.TemplateMessage
 			gameTimeStr := UtcMillis2TimeString(val.Profile.UtcMillis, DATE_TIME_LAYOUT)
 			gameInfo = fmt.Sprintf("未開賽 | %s ", gameTimeStr)
 		default: //2: 比賽中, 3: 結束
-			gameInfo = fmt.Sprintf(" %3d : %3d | %s %s", homeScore, awayScore, val.Boxscore.StatusDesc, val.Boxscore.PeriodClock)
+			gameInfo = fmt.Sprintf(" %3d - %3d | %s %s", homeScore, awayScore, val.Boxscore.StatusDesc, val.Boxscore.PeriodClock)
 			// case "3":
 			// 	gameInfo = fmt.Sprintf(" %3d : %3d | 結束", homeScore, awayScore)
 		}
