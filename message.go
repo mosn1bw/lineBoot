@@ -91,7 +91,7 @@ func (app *NBABotClient) Callback(w http.ResponseWriter, r *http.Request) {
 					sendMseeage += fmt.Sprintf(messageFmt, name, position, upTime, points, rebs, assists)
 				}
 			} else {
-				for _, player := range pInfo.Payload.AwayTeam.GamePlayers {
+				for _, player := range pInfo.Payload.HomeTeam.GamePlayers {
 					if player.StatTotal.Mins == 0 {
 						continue
 					}
