@@ -19,7 +19,7 @@ func GetNBAGameByDate(date *time.Time) (*GameInfo, error) {
 	return getNBAGame(nbaquertURL)
 }
 
-func GetNBAameToday() (*GameInfo, error) {
+func GetNBAGameToday() (*GameInfo, error) {
 	return getNBAGame(nbaAPIGameURL)
 }
 

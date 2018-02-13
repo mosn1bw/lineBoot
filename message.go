@@ -112,28 +112,39 @@ func (app *NBABotClient) Callback(w http.ResponseWriter, r *http.Request) {
 }
 
 const (
-	_cmd_prefix = "nba"
+	_cmd_prefix = "#"
 )
+
+var (
+	CmdTodayGame     = _cmd_prefix + "今日賽事"
+	CmdTomorrowGame  = _cmd_prefix + "明日賽事"
+	CmdYesterdayGame = _cmd_prefix + "昨日賽事"
+)
+
+var CmdArray = []string{
+	CmdTodayGame,
+	CmdTomorrowGame,
+	CmdYesterdayGame,
+}
 
 func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken string, source *linebot.EventSource) error {
 	var sendMsg *linebot.TemplateMessage
 	log.Print(message.Text)
-	cmdMsg, isCmd := parseReceiveMsg(message.Text)
-	if !isCmd {
-		return nil
-	}
-	switch cmdMsg {
-	case "":
+	recMsg := strings.Trim(message.Text, " ")
+	recMsg = strings.ToUpper(recMsg)
+	switch recMsg {
+	case "NBA":
 		imageURL := app.appBaseURL + "/static/buttons/nba.jpg"
 		buttons := linebot.NewButtonsTemplate(
 			imageURL, "NBA功能列表", "賽事",
-			linebot.NewMessageTemplateAction("今日賽事", "NBA今日賽事"),
-			linebot.NewMessageTemplateAction("明日賽事", "NBA明日賽事"),
-			linebot.NewMessageTemplateAction("昨日賽事", "NBA昨日賽事"),
+			linebot.NewMessageTemplateAction("今日賽事", CmdTodayGame),
+			linebot.NewMessageTemplateAction("明日賽事", CmdTomorrowGame),
+			linebot.NewMessageTemplateAction("昨日賽事", CmdYesterdayGame),
 		)
+		cmdLine := strings.Join(CmdArray, " | ")
 		if _, err := app.bot.ReplyMessage(
 			replyToken,
-			linebot.NewTemplateMessage("支援命令: \n   NBA賽事 | NBA今日賽事 | NBA明日賽事 | NBA昨日賽事", buttons),
+			linebot.NewTemplateMessage("支援命令: \n   "+cmdLine, buttons),
 		).Do(); err != nil {
 			return err
 		}
@@ -154,13 +165,13 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 	// 	} else {
 	// 		return app.replyText(replyToken, "Bot can't use profile API without user ID")
 	// 	}
-	case "賽事", "今日賽事":
-		data, err := GetNBAameToday()
+	case CmdTodayGame:
+		data, err := GetNBAGameToday()
 		if err != nil {
-			log.Printf("GetNBAameToday error : %v", err)
+			log.Printf("GetNBAGameToday error : %v", err)
 		}
 		sendMsg = app.ParseToMessage(data)
-	case "明日賽事":
+	case CmdTomorrowGame:
 		today, err := GetLocalTime(time.Now())
 		if err != nil {
 			log.Printf("GetLocalTimeNow error: %v", err)
@@ -171,7 +182,7 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 			log.Printf("GetNBAGameByDate error :%v, %v", tomorrow, err)
 		}
 		sendMsg = app.ParseToMessage(data)
-	case "昨日賽事":
+	case CmdYesterdayGame:
 		today, err := GetLocalTime(time.Now())
 		if err != nil {
 			log.Printf("GetLocalTimeNow error: %v", err)
@@ -192,17 +203,6 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 		}
 	}
 	return nil
-}
-
-func parseReceiveMsg(msg string) (string, bool) {
-	var recMsg string
-	recMsg = strings.Trim(msg, " ")
-	recMsg = strings.ToLower(recMsg)
-	if len(recMsg) < 3 {
-		return "", false
-	}
-	prefix := recMsg[0:3]
-	return recMsg[3:], prefix == _cmd_prefix
 }
 
 func (app *NBABotClient) replyText(replyToken, text string) error {
