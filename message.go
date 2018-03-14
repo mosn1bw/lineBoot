@@ -244,8 +244,8 @@ func (app *NBABotClient) ParseToMessage(data *GameInfo) *linebot.TemplateMessage
 		btnName2 := fmt.Sprintf("%s 數據統計", awayTeamName)
 		column := linebot.NewCarouselColumn(
 			imageURL, teamVS, gameInfo,
-			linebot.NewPostbackTemplateAction(btnName1, "home@"+val.Profile.GameID, ""),
-			linebot.NewPostbackTemplateAction(btnName2, "away@"+val.Profile.GameID, ""),
+			linebot.NewPostbackTemplateAction(btnName1, "home@"+val.Profile.GameID, "", ""),
+			linebot.NewPostbackTemplateAction(btnName2, "away@"+val.Profile.GameID, "", ""),
 		)
 		columns = append(columns, column)
 	}
