@@ -220,6 +220,10 @@ func (app *NBABotClient) ParseToMessage(data *GameInfo) *linebot.TemplateMessage
 	columns := []*linebot.CarouselColumn{}
 	message := "     主隊 : 客隊\n"
 	for index, val := range data.Payload.Date.Games {
+		// ToDo: fixed more than 10
+		if index > 9 {
+			continue
+		}
 		var gameInfo string
 		homeScore := val.Boxscore.HomeScore
 		awayScore := val.Boxscore.AwayScore
