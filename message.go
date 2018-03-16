@@ -134,7 +134,7 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 	recMsg = strings.ToUpper(recMsg)
 	switch recMsg {
 	case "NBA":
-		imageURL := app.appBaseURL + "/static/buttons/nba.jpg"
+		imageURL := app.appBaseURL + "/static/buttons/nba.png"
 		buttons := linebot.NewButtonsTemplate(
 			imageURL, "NBA功能列表", "賽事",
 			linebot.NewMessageTemplateAction("今日賽事", CmdTodayGame),
