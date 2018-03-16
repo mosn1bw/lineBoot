@@ -216,7 +216,7 @@ func (app *NBABotClient) replyText(replyToken, text string) error {
 }
 
 func (app *NBABotClient) ParseToMessage(data *GameInfo) *linebot.TemplateMessage {
-	imageURL := app.appBaseURL + "/static/buttons/nba.jpg"
+	imageURL := app.appBaseURL + "/static/buttons/nba.png"
 	columns := []*linebot.CarouselColumn{}
 	message := "     主隊 : 客隊\n"
 	for index, val := range data.Payload.Date.Games {
