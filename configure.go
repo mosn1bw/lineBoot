@@ -21,10 +21,11 @@ type Configuration struct {
 }
 
 var (
-	_config             *Configuration
-	_localZone          *time.Location
-	nbaAPIGameURL       string
-	nbaAPIGamePlayerURL string
+	_config                  *Configuration
+	_localZone               *time.Location
+	nbaAPIScoresURL          string
+	nbaAPIGameSnapshotURL    string
+	nbaConferenceStandingAPI string
 )
 
 func init() {
@@ -51,22 +52,22 @@ func init() {
 		_config.Channel.Secret = os.Getenv("ChannelSecret")
 		_config.Channel.Token = os.Getenv("ChannelAccessToken")
 		_config.Source = map[string]string{
-			"nba_game":        os.Getenv("SourceURL"),
-			"nba_game_player": os.Getenv("SourcePlayerURL"),
+			"nba_url": os.Getenv("SourceNBAURL"),
 		}
 		_config.AppBaseURL = os.Getenv("AppBaseURL")
 	}
 
 	var found bool
-	nbaAPIGameURL, found = _config.Source["nba_game"]
+	var nbaAPIURL string
+
+	nbaAPIURL, found = _config.Source["nba_url"]
 	if !found {
-		panic("config nbaAPIGameURL empty")
+		panic("config nba_url empty")
 	}
 
-	nbaAPIGamePlayerURL, found = _config.Source["nba_game_player"]
-	if !found {
-		panic("config nbaAPIGamePlayerURL empty")
-	}
+	nbaAPIScoresURL = nbaAPIURL + "/stats2/scores/daily.json?countryCode=TW&locale=zh_TW&tz=%2B8"
+	nbaAPIGameSnapshotURL = nbaAPIURL + "/stats2/game/snapshot.json?countryCode=TW&locale=zh_TW&gameId=%s"
+	nbaConferenceStandingAPI = nbaAPIURL + "/stats2/season/conferencestanding.json?locale=zh_TW"
 
 	_localZone, err = time.LoadLocation("Asia/Taipei")
 	if err != nil {

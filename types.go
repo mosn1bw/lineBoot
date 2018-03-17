@@ -1416,3 +1416,129 @@ type GamePlayerInfo struct {
 	} `json:"payload"`
 	Timestamp string `json:"timestamp"`
 }
+
+type ConferenceStanding struct {
+	Context struct {
+		User struct {
+			CountryCode  string `json:"countryCode"`
+			CountryName  string `json:"countryName"`
+			Locale       string `json:"locale"`
+			TimeZone     string `json:"timeZone"`
+			TimeZoneCity string `json:"timeZoneCity"`
+		} `json:"user"`
+		Device struct {
+			Clazz interface{} `json:"clazz"`
+		} `json:"device"`
+	} `json:"context"`
+	Error struct {
+		Detail  interface{} `json:"detail"`
+		IsError string      `json:"isError"`
+		Message interface{} `json:"message"`
+	} `json:"error"`
+	Payload struct {
+		League struct {
+			ID   string `json:"id"`
+			Name string `json:"name"`
+		} `json:"league"`
+		Season struct {
+			IsCurrent               string `json:"isCurrent"`
+			RosterSeasonType        int    `json:"rosterSeasonType"`
+			RosterSeasonYear        string `json:"rosterSeasonYear"`
+			RosterSeasonYearDisplay string `json:"rosterSeasonYearDisplay"`
+			ScheduleSeasonType      int    `json:"scheduleSeasonType"`
+			ScheduleSeasonYear      string `json:"scheduleSeasonYear"`
+			ScheduleYearDisplay     string `json:"scheduleYearDisplay"`
+			StatsSeasonType         int    `json:"statsSeasonType"`
+			StatsSeasonYear         string `json:"statsSeasonYear"`
+			StatsSeasonYearDisplay  string `json:"statsSeasonYearDisplay"`
+			Year                    string `json:"year"`
+			YearDisplay             string `json:"yearDisplay"`
+		} `json:"season"`
+		StandingGroups []struct {
+			Teams []struct {
+				Profile struct {
+					Abbr              string `json:"abbr"`
+					City              string `json:"city"`
+					CityEn            string `json:"cityEn"`
+					Code              string `json:"code"`
+					Conference        string `json:"conference"`
+					DisplayAbbr       string `json:"displayAbbr"`
+					DisplayConference string `json:"displayConference"`
+					Division          string `json:"division"`
+					ID                string `json:"id"`
+					IsAllStarTeam     bool   `json:"isAllStarTeam"`
+					IsLeagueTeam      bool   `json:"isLeagueTeam"`
+					LeagueID          string `json:"leagueId"`
+					Name              string `json:"name"`
+					NameEn            string `json:"nameEn"`
+				} `json:"profile"`
+				Standings struct {
+					AheadAtHalfLoss     string  `json:"aheadAtHalfLoss"`
+					AheadAtHalfWin      string  `json:"aheadAtHalfWin"`
+					AheadAtThirdLoss    string  `json:"aheadAtThirdLoss"`
+					AheadAtThirdWin     string  `json:"aheadAtThirdWin"`
+					BehindAtHalfLoss    string  `json:"behindAtHalfLoss"`
+					BehindAtHalfWin     string  `json:"behindAtHalfWin"`
+					BehindAtThirdLoss   string  `json:"behindAtThirdLoss"`
+					BehindAtThirdWin    string  `json:"behindAtThirdWin"`
+					Clinched            string  `json:"clinched"`
+					ConfGamesBehind     float64 `json:"confGamesBehind"`
+					ConfLoss            int     `json:"confLoss"`
+					ConfRank            int     `json:"confRank"`
+					ConfWin             int     `json:"confWin"`
+					DivGameBehind       float64 `json:"divGameBehind"`
+					DivLoss             int     `json:"divLoss"`
+					DivRank             int     `json:"divRank"`
+					DivWin              int     `json:"divWin"`
+					FewerTurnoversLoss  string  `json:"fewerTurnoversLoss"`
+					FewerTurnoversWin   string  `json:"fewerTurnoversWin"`
+					HomeLoss            int     `json:"homeLoss"`
+					HomeStreak          string  `json:"homeStreak"`
+					HomeWin             int     `json:"homeWin"`
+					Last10              string  `json:"last10"`
+					Last10Home          string  `json:"last10Home"`
+					Last10Road          string  `json:"last10Road"`
+					LeadInFgpctloss     string  `json:"leadInFgpctloss"`
+					LeadInFgpctwin      string  `json:"leadInFgpctwin"`
+					LeadInRebLoss       string  `json:"leadInRebLoss"`
+					LeadInRebWin        string  `json:"leadInRebWin"`
+					LoseStreak          string  `json:"loseStreak"`
+					Losses              int     `json:"losses"`
+					OnHotStreak         string  `json:"onHotStreak"`
+					Oppover500Loss      string  `json:"oppover500Loss"`
+					Oppover500Win       string  `json:"oppover500Win"`
+					Oppscore100PlusLoss string  `json:"oppscore100PlusLoss"`
+					Oppscore100PlusWin  string  `json:"oppscore100PlusWin"`
+					Otloss              string  `json:"otloss"`
+					Otwin               string  `json:"otwin"`
+					PointsAgainst       float64 `json:"pointsAgainst"`
+					PointsDiff          float64 `json:"pointsDiff"`
+					PointsFor           float64 `json:"pointsFor"`
+					RoadLoss            int     `json:"roadLoss"`
+					RoadStreak          string  `json:"roadStreak"`
+					RoadWin             int     `json:"roadWin"`
+					Score100PlusLoss    string  `json:"score100PlusLoss"`
+					Score100PlusWin     string  `json:"score100PlusWin"`
+					Streak              string  `json:"streak"`
+					TenPtsOrMoreLoss    string  `json:"tenPtsOrMoreLoss"`
+					TenPtsOrMoreWin     string  `json:"tenPtsOrMoreWin"`
+					ThreePtsOrLessLoss  string  `json:"threePtsOrLessLoss"`
+					ThreePtsOrLessWin   string  `json:"threePtsOrLessWin"`
+					TiedAtHalfLoss      string  `json:"tiedAtHalfLoss"`
+					TiedAtHalfWin       string  `json:"tiedAtHalfWin"`
+					TiedAtThirdLoss     string  `json:"tiedAtThirdLoss"`
+					TiedAtThirdWin      string  `json:"tiedAtThirdWin"`
+					WinPct              float64 `json:"winPct"`
+					WinStreak           string  `json:"winStreak"`
+					Wins                int     `json:"wins"`
+				} `json:"standings"`
+			} `json:"teams"`
+			Conference        string      `json:"conference"`
+			DisplayConference string      `json:"displayConference"`
+			DisplayDivision   interface{} `json:"displayDivision"`
+			Division          interface{} `json:"division"`
+		} `json:"standingGroups"`
+		Grouping string `json:"grouping"`
+	} `json:"payload"`
+	Timestamp string `json:"timestamp"`
+}

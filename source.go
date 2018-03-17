@@ -15,12 +15,12 @@ const (
 )
 
 func GetNBAGameByDate(date *time.Time) (*GameInfo, error) {
-	nbaquertURL := nbaAPIGameURL + fmt.Sprintf("&gameDate=%s", date.Format(NBA_API_TIME_FORMAT))
+	nbaquertURL := nbaAPIScoresURL + fmt.Sprintf("&gameDate=%s", date.Format(NBA_API_TIME_FORMAT))
 	return getNBAGame(nbaquertURL)
 }
 
 func GetNBAGameToday() (*GameInfo, error) {
-	return getNBAGame(nbaAPIGameURL)
+	return getNBAGame(nbaAPIScoresURL)
 }
 
 func getNBAGame(url string) (*GameInfo, error) {
@@ -45,7 +45,7 @@ func getNBAGame(url string) (*GameInfo, error) {
 }
 
 func GetNBAGamePlayerByGameID(id string) (*GamePlayerInfo, error) {
-	url := fmt.Sprintf(nbaAPIGamePlayerURL, id)
+	url := fmt.Sprintf(nbaAPIGameSnapshotURL, id)
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Printf("error: get error %v", err)
@@ -62,6 +62,27 @@ func GetNBAGamePlayerByGameID(id string) (*GamePlayerInfo, error) {
 		return nil, err
 	}
 	data := GamePlayerInfo{}
+	json.Unmarshal(body, &data)
+	return &data, err
+}
+
+func GetNBAConferenceStanding() (*ConferenceStanding, error) {
+	resp, err := http.Get(nbaConferenceStandingAPI)
+	if err != nil {
+		log.Printf("error: get error %v", err)
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		log.Printf("error: get fail %s", resp.Body)
+		return nil, fmt.Errorf("status code error %v", resp.Body)
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("error: ReadAll error %v", err)
+		return nil, err
+	}
+	data := ConferenceStanding{}
 	json.Unmarshal(body, &data)
 	return &data, err
 }

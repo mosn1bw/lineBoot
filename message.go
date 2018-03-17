@@ -116,15 +116,19 @@ const (
 )
 
 var (
-	CmdTodayGame     = _cmd_prefix + "今日賽事"
-	CmdTomorrowGame  = _cmd_prefix + "明日賽事"
-	CmdYesterdayGame = _cmd_prefix + "昨日賽事"
+	CmdTodayGame                 = _cmd_prefix + "今日賽事"
+	CmdTomorrowGame              = _cmd_prefix + "明日賽事"
+	CmdYesterdayGame             = _cmd_prefix + "昨日賽事"
+	CmdEasternConferenceStanding = _cmd_prefix + "東區戰績"
+	CmdWesternConferenceStanding = _cmd_prefix + "西區戰績"
 )
 
 var CmdArray = []string{
 	CmdTodayGame,
 	CmdTomorrowGame,
 	CmdYesterdayGame,
+	CmdEasternConferenceStanding,
+	CmdWesternConferenceStanding,
 }
 
 func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken string, source *linebot.EventSource) error {
@@ -132,11 +136,12 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 	log.Print(message.Text)
 	recMsg := strings.Trim(message.Text, " ")
 	recMsg = strings.ToUpper(recMsg)
+	imageURL := app.appBaseURL + "/static/buttons/nba.png"
 	switch recMsg {
 	case "NBA":
-		imageURL := app.appBaseURL + "/static/buttons/nba.png"
 		buttons := linebot.NewButtonsTemplate(
 			imageURL, "NBA功能列表", "賽事",
+			linebot.NewMessageTemplateAction("分區戰績", "#分區戰績"),
 			linebot.NewMessageTemplateAction("今日賽事", CmdTodayGame),
 			linebot.NewMessageTemplateAction("明日賽事", CmdTomorrowGame),
 			linebot.NewMessageTemplateAction("昨日賽事", CmdYesterdayGame),
@@ -149,28 +154,26 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 			return err
 		}
 		return nil
-	// case "profile":
-	// 	if source.UserID != "" {
-	// 		profile, err := app.bot.GetProfile(source.UserID).Do()
-	// 		if err != nil {
-	// 			return app.replyText(replyToken, err.Error())
-	// 		}
-	// 		if _, err := app.bot.ReplyMessage(
-	// 			replyToken,
-	// 			linebot.NewTextMessage("Display name: "+profile.DisplayName),
-	// 			linebot.NewTextMessage("Status message: "+profile.StatusMessage),
-	// 		).Do(); err != nil {
-	// 			return err
-	// 		}
-	// 	} else {
-	// 		return app.replyText(replyToken, "Bot can't use profile API without user ID")
-	// 	}
+	case "#分區戰績":
+		buttons := linebot.NewButtonsTemplate(
+			imageURL, "NBA功能列表", "戰績",
+			linebot.NewMessageTemplateAction("東區戰績", CmdEasternConferenceStanding),
+			linebot.NewMessageTemplateAction("西區戰績", CmdWesternConferenceStanding),
+		)
+		cmdLine := strings.Join(CmdArray, " | ")
+		if _, err := app.bot.ReplyMessage(
+			replyToken,
+			linebot.NewTemplateMessage("支援命令: \n   "+cmdLine, buttons),
+		).Do(); err != nil {
+			return err
+		}
+		return nil
 	case CmdTodayGame:
 		data, err := GetNBAGameToday()
 		if err != nil {
 			log.Printf("GetNBAGameToday error : %v", err)
 		}
-		sendMsg = app.ParseToMessage(data)
+		sendMsg = app.ParseGameInfoToMessage(data)
 	case CmdTomorrowGame:
 		today, err := GetLocalTime(time.Now())
 		if err != nil {
@@ -181,7 +184,7 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 		if err != nil {
 			log.Printf("GetNBAGameByDate error :%v, %v", tomorrow, err)
 		}
-		sendMsg = app.ParseToMessage(data)
+		sendMsg = app.ParseGameInfoToMessage(data)
 	case CmdYesterdayGame:
 		today, err := GetLocalTime(time.Now())
 		if err != nil {
@@ -192,7 +195,43 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 		if err != nil {
 			log.Printf("GetNBAGameByDate error :%v, %v", tomorrow, err)
 		}
-		sendMsg = app.ParseToMessage(data)
+		sendMsg = app.ParseGameInfoToMessage(data)
+
+	case CmdEasternConferenceStanding:
+		data, err := GetNBAConferenceStanding()
+		if err != nil {
+			return err
+		}
+		sendMseeage := app.ParseConferenceStandingToMessage(data, "Eastern")
+		if err := app.replyText(replyToken, sendMseeage); err != nil {
+			log.Print(err)
+		}
+	case CmdWesternConferenceStanding:
+		data, err := GetNBAConferenceStanding()
+		if err != nil {
+			return err
+		}
+		sendMseeage := app.ParseConferenceStandingToMessage(data, "Western")
+		if err := app.replyText(replyToken, sendMseeage); err != nil {
+			log.Print(err)
+		}
+
+		// case "profile":
+		// 	if source.UserID != "" {
+		// 		profile, err := app.bot.GetProfile(source.UserID).Do()
+		// 		if err != nil {
+		// 			return app.replyText(replyToken, err.Error())
+		// 		}
+		// 		if _, err := app.bot.ReplyMessage(
+		// 			replyToken,
+		// 			linebot.NewTextMessage("Display name: "+profile.DisplayName),
+		// 			linebot.NewTextMessage("Status message: "+profile.StatusMessage),
+		// 		).Do(); err != nil {
+		// 			return err
+		// 		}
+		// 	} else {
+		// 		return app.replyText(replyToken, "Bot can't use profile API without user ID")
+		// 	}
 	}
 	if sendMsg != nil {
 		if _, err := app.bot.ReplyMessage(
@@ -215,7 +254,7 @@ func (app *NBABotClient) replyText(replyToken, text string) error {
 	return nil
 }
 
-func (app *NBABotClient) ParseToMessage(data *GameInfo) *linebot.TemplateMessage {
+func (app *NBABotClient) ParseGameInfoToMessage(data *GameInfo) *linebot.TemplateMessage {
 	imageURL := app.appBaseURL + "/static/buttons/nba.png"
 	columns := []*linebot.CarouselColumn{}
 	message := "     主隊 : 客隊\n"
@@ -256,4 +295,26 @@ func (app *NBABotClient) ParseToMessage(data *GameInfo) *linebot.TemplateMessage
 	template := linebot.NewCarouselTemplate(columns...)
 
 	return linebot.NewTemplateMessage(message, template)
+}
+
+func (app *NBABotClient) ParseConferenceStandingToMessage(data *ConferenceStanding, conference string) string {
+	sendMseeage := "排名       ｜勝負     ｜勝差"
+	msgFormat := "%02d %4s｜%s｜%.1f"
+	for _, group := range data.Payload.StandingGroups {
+		if strings.ToLower(group.Conference) == strings.ToLower(conference) {
+			totalLen := len(group.Teams)
+			teamMsgArr := make([]string, totalLen)
+			for _, team := range group.Teams {
+				rank := team.Standings.ConfRank
+				teamName := team.Profile.Name
+				winLose := fmt.Sprintf("%2d - %2d", team.Standings.Wins, team.Standings.Losses)
+				confGamesBehind := team.Standings.ConfGamesBehind
+				teamMsgArr[rank-1] = fmt.Sprintf(msgFormat, rank, teamName, winLose, confGamesBehind)
+			}
+			teamMsgStr := strings.Join(teamMsgArr, "\n")
+			sendMseeage += "\n" + teamMsgStr
+			return sendMseeage
+		}
+	}
+	return sendMseeage
 }
