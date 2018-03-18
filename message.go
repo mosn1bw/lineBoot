@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/line/line-bot-sdk-go/linebot"
@@ -39,7 +40,8 @@ var CmdArray = []string{
 }
 
 type NBABotClient struct {
-	bot            *linebot.Client
+	bot *linebot.Client
+	sync.RWMutex
 	appBaseURL     string
 	downloadDir    string
 	commandCounter map[string]int
@@ -114,7 +116,8 @@ func (app *NBABotClient) Callback(w http.ResponseWriter, r *http.Request) {
 				log.Printf("GetNBAGamePlayerByGameID err: %v", err)
 				return
 			}
-			app.commandCounter["比賽數據統計"] += 1
+			app.CounterIncs("比賽數據統計")
+
 			sendMseeage := " 球員｜位置\n上場時間｜得分｜籃板｜助攻 \n-----------\n"
 			messageFmt := "%s | %s\n%s | %d | %d | %d \n-----------\n"
 			if teamType == "away" {
@@ -152,6 +155,8 @@ func (app *NBABotClient) Callback(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *NBABotClient) Statistic(w http.ResponseWriter, r *http.Request) {
+	app.RLock()
+	defer app.RUnlock()
 	response := ""
 	var keys []string
 	for k := range app.commandCounter {
@@ -163,6 +168,12 @@ func (app *NBABotClient) Statistic(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintf(w, "%s", response)
+}
+
+func (app *NBABotClient) CounterIncs(key string) {
+	app.Lock()
+	app.commandCounter[key] += 1
+	app.Unlock()
 }
 
 func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken string, source *linebot.EventSource) error {
@@ -193,7 +204,7 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 
 		template := linebot.NewCarouselTemplate(columns...)
 		sendMsg = linebot.NewTemplateMessage("支援命令: \n   "+cmdLine, template)
-		app.commandCounter[recMsg] += 1
+		app.CounterIncs(recMsg)
 	case "#分區戰績":
 		buttons := linebot.NewButtonsTemplate(
 			imageURL, "NBA功能列表", "戰績",
@@ -207,7 +218,7 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 		).Do(); err != nil {
 			return err
 		}
-		app.commandCounter[recMsg] += 1
+		app.CounterIncs(recMsg)
 		return nil
 	case CmdTodayGame:
 		data, err := GetNBAGameToday()
@@ -215,7 +226,7 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 			log.Printf("GetNBAGameToday error : %v", err)
 		}
 		sendMsg = app.ParseGameInfoToMessage(data)
-		app.commandCounter[recMsg] += 1
+		app.CounterIncs(recMsg)
 	case CmdTomorrowGame:
 		today, err := GetLocalTime(time.Now())
 		if err != nil {
@@ -227,7 +238,7 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 			log.Printf("GetNBAGameByDate error :%v, %v", tomorrow, err)
 		}
 		sendMsg = app.ParseGameInfoToMessage(data)
-		app.commandCounter[recMsg] += 1
+		app.CounterIncs(recMsg)
 	case CmdYesterdayGame:
 		today, err := GetLocalTime(time.Now())
 		if err != nil {
@@ -239,7 +250,7 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 			log.Printf("GetNBAGameByDate error :%v, %v", tomorrow, err)
 		}
 		sendMsg = app.ParseGameInfoToMessage(data)
-		app.commandCounter[recMsg] += 1
+		app.CounterIncs(recMsg)
 
 	case CmdEasternConferenceStanding:
 		data, err := GetNBAConferenceStanding()
@@ -250,7 +261,7 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 		if err := app.replyText(replyToken, sendMseeage); err != nil {
 			log.Print(err)
 		}
-		app.commandCounter[recMsg] += 1
+		app.CounterIncs(recMsg)
 	case CmdWesternConferenceStanding:
 		data, err := GetNBAConferenceStanding()
 		if err != nil {
@@ -260,7 +271,7 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 		if err := app.replyText(replyToken, sendMseeage); err != nil {
 			log.Print(err)
 		}
-		app.commandCounter[recMsg] += 1
+		app.CounterIncs(recMsg)
 
 	// case "profile":
 	// 	if source.UserID != "" {
@@ -279,7 +290,7 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 	// 		return app.replyText(replyToken, "Bot can't use profile API without user ID")
 	// 	}
 	default:
-		app.commandCounter["其它"] += 1
+		app.CounterIncs("其它")
 	}
 	if sendMsg != nil {
 		if _, err := app.bot.ReplyMessage(
