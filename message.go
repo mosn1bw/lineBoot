@@ -13,10 +13,36 @@ import (
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 
+const (
+	_cmd_prefix = "#"
+)
+
+var (
+	TodayGameStr                 = "今日賽事"
+	TomorrowGameStr              = "明日賽事"
+	YesterdayGameStr             = "昨日賽事"
+	EasternConferenceStandingStr = "東區戰績"
+	WesternConferenceStandingStr = "西區戰績"
+	CmdTodayGame                 = _cmd_prefix + TodayGameStr
+	CmdTomorrowGame              = _cmd_prefix + TomorrowGameStr
+	CmdYesterdayGame             = _cmd_prefix + YesterdayGameStr
+	CmdEasternConferenceStanding = _cmd_prefix + EasternConferenceStandingStr
+	CmdWesternConferenceStanding = _cmd_prefix + WesternConferenceStandingStr
+)
+
+var CmdArray = []string{
+	CmdTodayGame,
+	CmdTomorrowGame,
+	CmdYesterdayGame,
+	CmdEasternConferenceStanding,
+	CmdWesternConferenceStanding,
+}
+
 type NBABotClient struct {
-	bot         *linebot.Client
-	appBaseURL  string
-	downloadDir string
+	bot            *linebot.Client
+	appBaseURL     string
+	downloadDir    string
+	commandCounter map[string]int
 }
 
 func NewNBABotClient(channelSecret, channelToken, appBaseURL string) (*NBABotClient, error) {
@@ -34,10 +60,22 @@ func NewNBABotClient(channelSecret, channelToken, appBaseURL string) (*NBABotCli
 			return nil, err
 		}
 	}
+
+	cmdCounter := map[string]int{
+		"NBA":     0,
+		"#分區戰績":   0,
+		"#比賽數據統計": 0,
+		"#其它":     0,
+	}
+	for _, cmd := range CmdArray {
+		cmdCounter[cmd] = 0
+	}
+
 	return &NBABotClient{
-		bot:         bot,
-		appBaseURL:  appBaseURL,
-		downloadDir: downloadDir,
+		bot:            bot,
+		appBaseURL:     appBaseURL,
+		downloadDir:    downloadDir,
+		commandCounter: cmdCounter,
 	}, nil
 }
 
@@ -76,6 +114,7 @@ func (app *NBABotClient) Callback(w http.ResponseWriter, r *http.Request) {
 				log.Printf("GetNBAGamePlayerByGameID err: %v", err)
 				return
 			}
+			app.commandCounter["比賽數據統計"] += 1
 			sendMseeage := " 球員｜位置\n上場時間｜得分｜籃板｜助攻 \n-----------\n"
 			messageFmt := "%s | %s\n%s | %d | %d | %d \n-----------\n"
 			if teamType == "away" {
@@ -112,29 +151,18 @@ func (app *NBABotClient) Callback(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-const (
-	_cmd_prefix = "#"
-)
+func (app *NBABotClient) Statistic(w http.ResponseWriter, r *http.Request) {
+	response := ""
+	var keys []string
+	for k := range app.commandCounter {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	for _, key := range keys {
+		response += fmt.Sprintf("%s : %d\n", key, app.commandCounter[key])
+	}
 
-var (
-	TodayGameStr                 = "今日賽事"
-	TomorrowGameStr              = "明日賽事"
-	YesterdayGameStr             = "昨日賽事"
-	EasternConferenceStandingStr = "東區戰績"
-	WesternConferenceStandingStr = "西區戰績"
-	CmdTodayGame                 = _cmd_prefix + TodayGameStr
-	CmdTomorrowGame              = _cmd_prefix + TomorrowGameStr
-	CmdYesterdayGame             = _cmd_prefix + YesterdayGameStr
-	CmdEasternConferenceStanding = _cmd_prefix + EasternConferenceStandingStr
-	CmdWesternConferenceStanding = _cmd_prefix + WesternConferenceStandingStr
-)
-
-var CmdArray = []string{
-	CmdTodayGame,
-	CmdTomorrowGame,
-	CmdYesterdayGame,
-	CmdEasternConferenceStanding,
-	CmdWesternConferenceStanding,
+	fmt.Fprintf(w, "%s", response)
 }
 
 func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken string, source *linebot.EventSource) error {
@@ -165,6 +193,7 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 
 		template := linebot.NewCarouselTemplate(columns...)
 		sendMsg = linebot.NewTemplateMessage("支援命令: \n   "+cmdLine, template)
+		app.commandCounter[recMsg] += 1
 	case "#分區戰績":
 		buttons := linebot.NewButtonsTemplate(
 			imageURL, "NBA功能列表", "戰績",
@@ -178,6 +207,7 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 		).Do(); err != nil {
 			return err
 		}
+		app.commandCounter[recMsg] += 1
 		return nil
 	case CmdTodayGame:
 		data, err := GetNBAGameToday()
@@ -185,6 +215,7 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 			log.Printf("GetNBAGameToday error : %v", err)
 		}
 		sendMsg = app.ParseGameInfoToMessage(data)
+		app.commandCounter[recMsg] += 1
 	case CmdTomorrowGame:
 		today, err := GetLocalTime(time.Now())
 		if err != nil {
@@ -196,6 +227,7 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 			log.Printf("GetNBAGameByDate error :%v, %v", tomorrow, err)
 		}
 		sendMsg = app.ParseGameInfoToMessage(data)
+		app.commandCounter[recMsg] += 1
 	case CmdYesterdayGame:
 		today, err := GetLocalTime(time.Now())
 		if err != nil {
@@ -207,6 +239,7 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 			log.Printf("GetNBAGameByDate error :%v, %v", tomorrow, err)
 		}
 		sendMsg = app.ParseGameInfoToMessage(data)
+		app.commandCounter[recMsg] += 1
 
 	case CmdEasternConferenceStanding:
 		data, err := GetNBAConferenceStanding()
@@ -217,6 +250,7 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 		if err := app.replyText(replyToken, sendMseeage); err != nil {
 			log.Print(err)
 		}
+		app.commandCounter[recMsg] += 1
 	case CmdWesternConferenceStanding:
 		data, err := GetNBAConferenceStanding()
 		if err != nil {
@@ -226,23 +260,26 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 		if err := app.replyText(replyToken, sendMseeage); err != nil {
 			log.Print(err)
 		}
+		app.commandCounter[recMsg] += 1
 
-		// case "profile":
-		// 	if source.UserID != "" {
-		// 		profile, err := app.bot.GetProfile(source.UserID).Do()
-		// 		if err != nil {
-		// 			return app.replyText(replyToken, err.Error())
-		// 		}
-		// 		if _, err := app.bot.ReplyMessage(
-		// 			replyToken,
-		// 			linebot.NewTextMessage("Display name: "+profile.DisplayName),
-		// 			linebot.NewTextMessage("Status message: "+profile.StatusMessage),
-		// 		).Do(); err != nil {
-		// 			return err
-		// 		}
-		// 	} else {
-		// 		return app.replyText(replyToken, "Bot can't use profile API without user ID")
-		// 	}
+	// case "profile":
+	// 	if source.UserID != "" {
+	// 		profile, err := app.bot.GetProfile(source.UserID).Do()
+	// 		if err != nil {
+	// 			return app.replyText(replyToken, err.Error())
+	// 		}
+	// 		if _, err := app.bot.ReplyMessage(
+	// 			replyToken,
+	// 			linebot.NewTextMessage("Display name: "+profile.DisplayName),
+	// 			linebot.NewTextMessage("Status message: "+profile.StatusMessage),
+	// 		).Do(); err != nil {
+	// 			return err
+	// 		}
+	// 	} else {
+	// 		return app.replyText(replyToken, "Bot can't use profile API without user ID")
+	// 	}
+	default:
+		app.commandCounter["其它"] += 1
 	}
 	if sendMsg != nil {
 		if _, err := app.bot.ReplyMessage(

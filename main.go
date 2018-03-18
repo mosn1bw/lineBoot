@@ -21,6 +21,8 @@ func main() {
 
 	http.HandleFunc("/callback", app.Callback)
 
+	http.HandleFunc("/statistic", app.Statistic)
+
 	addr := fmt.Sprintf(":%s", _config.Bind)
 	if err := http.ListenAndServe(addr, nil); err != nil {
 		log.Fatal(err)
