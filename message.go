@@ -45,6 +45,7 @@ type NBABotClient struct {
 	appBaseURL     string
 	downloadDir    string
 	commandCounter map[string]int
+	initTime       *time.Time
 }
 
 func NewNBABotClient(channelSecret, channelToken, appBaseURL string) (*NBABotClient, error) {
@@ -52,6 +53,8 @@ func NewNBABotClient(channelSecret, channelToken, appBaseURL string) (*NBABotCli
 		channelSecret,
 		channelToken,
 	)
+	now := time.Now().UTC()
+	now = now.Add(8 * time.Hour)
 	if err != nil {
 		return nil, err
 	}
@@ -78,6 +81,7 @@ func NewNBABotClient(channelSecret, channelToken, appBaseURL string) (*NBABotCli
 		appBaseURL:     appBaseURL,
 		downloadDir:    downloadDir,
 		commandCounter: cmdCounter,
+		initTime:       &now,
 	}, nil
 }
 
@@ -166,6 +170,7 @@ func (app *NBABotClient) Statistic(w http.ResponseWriter, r *http.Request) {
 	for _, key := range keys {
 		response += fmt.Sprintf("%s : %d\n", key, app.commandCounter[key])
 	}
+	response += fmt.Sprintf("統計開始時間： %s", app.initTime.Format(DATE_TIME_LAYOUT))
 
 	fmt.Fprintf(w, "%s", response)
 }
