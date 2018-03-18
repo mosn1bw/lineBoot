@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
@@ -116,11 +117,16 @@ const (
 )
 
 var (
-	CmdTodayGame                 = _cmd_prefix + "今日賽事"
-	CmdTomorrowGame              = _cmd_prefix + "明日賽事"
-	CmdYesterdayGame             = _cmd_prefix + "昨日賽事"
-	CmdEasternConferenceStanding = _cmd_prefix + "東區戰績"
-	CmdWesternConferenceStanding = _cmd_prefix + "西區戰績"
+	TodayGameStr                 = "今日賽事"
+	TomorrowGameStr              = "明日賽事"
+	YesterdayGameStr             = "昨日賽事"
+	EasternConferenceStandingStr = "東區戰績"
+	WesternConferenceStandingStr = "西區戰績"
+	CmdTodayGame                 = _cmd_prefix + TodayGameStr
+	CmdTomorrowGame              = _cmd_prefix + TomorrowGameStr
+	CmdYesterdayGame             = _cmd_prefix + YesterdayGameStr
+	CmdEasternConferenceStanding = _cmd_prefix + EasternConferenceStandingStr
+	CmdWesternConferenceStanding = _cmd_prefix + WesternConferenceStandingStr
 )
 
 var CmdArray = []string{
@@ -139,21 +145,26 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 	imageURL := app.appBaseURL + "/static/buttons/nba.png"
 	switch recMsg {
 	case "NBA":
-		buttons := linebot.NewButtonsTemplate(
-			imageURL, "NBA功能列表", "賽事",
-			linebot.NewMessageTemplateAction("分區戰績", "#分區戰績"),
-			linebot.NewMessageTemplateAction("今日賽事", CmdTodayGame),
-			linebot.NewMessageTemplateAction("明日賽事", CmdTomorrowGame),
-			linebot.NewMessageTemplateAction("昨日賽事", CmdYesterdayGame),
+		column1 := linebot.NewCarouselColumn(
+			imageURL, "NBA比分", "賽事即時比分",
+			linebot.NewPostbackTemplateAction(TodayGameStr, CmdTodayGame, CmdTodayGame, ""),
+			linebot.NewPostbackTemplateAction(TomorrowGameStr, CmdTomorrowGame, CmdTomorrowGame, ""),
+			linebot.NewPostbackTemplateAction(YesterdayGameStr, CmdYesterdayGame, CmdYesterdayGame, ""),
 		)
-		cmdLine := strings.Join(CmdArray, " | ")
-		if _, err := app.bot.ReplyMessage(
-			replyToken,
-			linebot.NewTemplateMessage("支援命令: \n   "+cmdLine, buttons),
-		).Do(); err != nil {
-			return err
+		column2 := linebot.NewCarouselColumn(
+			imageURL, "NBA戰績", "分區戰績",
+			linebot.NewPostbackTemplateAction("分區戰績", "#分區戰績", "#分區戰績", ""),
+			linebot.NewPostbackTemplateAction(EasternConferenceStandingStr, CmdEasternConferenceStanding, CmdEasternConferenceStanding, ""),
+			linebot.NewPostbackTemplateAction(WesternConferenceStandingStr, CmdWesternConferenceStanding, CmdWesternConferenceStanding, ""),
+		)
+		columns := []*linebot.CarouselColumn{
+			column1,
+			column2,
 		}
-		return nil
+		cmdLine := strings.Join(CmdArray, " | ")
+
+		template := linebot.NewCarouselTemplate(columns...)
+		sendMsg = linebot.NewTemplateMessage("支援命令: \n   "+cmdLine, template)
 	case "#分區戰績":
 		buttons := linebot.NewButtonsTemplate(
 			imageURL, "NBA功能列表", "戰績",
@@ -298,18 +309,25 @@ func (app *NBABotClient) ParseGameInfoToMessage(data *GameInfo) *linebot.Templat
 }
 
 func (app *NBABotClient) ParseConferenceStandingToMessage(data *ConferenceStanding, conference string) string {
-	sendMseeage := "排名       ｜勝負     ｜勝差"
-	msgFormat := "%02d %4s｜%s｜%.1f"
+	sendMseeage := "排名        ｜  勝負   ｜ 勝差"
+	if conference != "Western" {
+		sendMseeage = "排名           ｜  勝負   ｜ 勝差"
+	}
+	msgFormat := "%02d %s｜%s｜ %.1f"
 	for _, group := range data.Payload.StandingGroups {
 		if strings.ToLower(group.Conference) == strings.ToLower(conference) {
-			totalLen := len(group.Teams)
-			teamMsgArr := make([]string, totalLen)
-			for _, team := range group.Teams {
+			teams := group.Teams
+			sort.Slice(teams, func(i, j int) bool {
+				return group.Teams[j].Standings.ConfRank > group.Teams[i].Standings.ConfRank
+			})
+			teamMsgArr := []string{}
+			for _, team := range teams {
 				rank := team.Standings.ConfRank
-				teamName := team.Profile.Name
+				teamName := parseTeamName(team.Profile.Name, conference)
 				winLose := fmt.Sprintf("%2d - %2d", team.Standings.Wins, team.Standings.Losses)
 				confGamesBehind := team.Standings.ConfGamesBehind
-				teamMsgArr[rank-1] = fmt.Sprintf(msgFormat, rank, teamName, winLose, confGamesBehind)
+				msg := fmt.Sprintf(msgFormat, rank, teamName, winLose, confGamesBehind)
+				teamMsgArr = append(teamMsgArr, msg)
 			}
 			teamMsgStr := strings.Join(teamMsgArr, "\n")
 			sendMseeage += "\n" + teamMsgStr
@@ -317,4 +335,19 @@ func (app *NBABotClient) ParseConferenceStandingToMessage(data *ConferenceStandi
 		}
 	}
 	return sendMseeage
+}
+
+func parseTeamName(team string, conference string) string {
+	if conference == "Western" {
+		if len(team) < 9 {
+			return team + "   "
+		}
+	} else {
+		if len(team) == 6 {
+			return team + "      "
+		} else if len(team) < 6 {
+			return team + "     "
+		}
+	}
+	return team
 }
