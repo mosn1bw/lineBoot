@@ -309,11 +309,8 @@ func (app *NBABotClient) ParseGameInfoToMessage(data *GameInfo) *linebot.Templat
 }
 
 func (app *NBABotClient) ParseConferenceStandingToMessage(data *ConferenceStanding, conference string) string {
-	sendMseeage := "排名        ｜  勝負   ｜ 勝差"
-	if conference != "Western" {
-		sendMseeage = "排名           ｜  勝負   ｜ 勝差"
-	}
-	msgFormat := "%02d %s｜%s｜ %.1f"
+	sendMseeage := "排名       ｜  勝負   ｜ 勝差"
+	msgFormat := "%02d %4s｜%s｜%.1f"
 	for _, group := range data.Payload.StandingGroups {
 		if strings.ToLower(group.Conference) == strings.ToLower(conference) {
 			teams := group.Teams
@@ -323,7 +320,7 @@ func (app *NBABotClient) ParseConferenceStandingToMessage(data *ConferenceStandi
 			teamMsgArr := []string{}
 			for _, team := range teams {
 				rank := team.Standings.ConfRank
-				teamName := parseTeamName(team.Profile.Name, conference)
+				teamName := team.Profile.Name
 				winLose := fmt.Sprintf("%2d - %2d", team.Standings.Wins, team.Standings.Losses)
 				confGamesBehind := team.Standings.ConfGamesBehind
 				msg := fmt.Sprintf(msgFormat, rank, teamName, winLose, confGamesBehind)
