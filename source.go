@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	DATE_TIME_LAYOUT    = "01 月02 日 15:04"
+	DATE_TIME_LAYOUT    = "01 月 02 日 15:04"
 	NBA_API_TIME_FORMAT = "2006-01-02"
 )
 

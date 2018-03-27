@@ -23,6 +23,7 @@ type Configuration struct {
 var (
 	_config                  *Configuration
 	_localZone               *time.Location
+	_fontPath                string
 	nbaAPIScoresURL          string
 	nbaAPIGameSnapshotURL    string
 	nbaConferenceStandingAPI string
@@ -35,6 +36,7 @@ func init() {
 		log.Fatalf("config: file error: %s", err.Error())
 	}
 	configPath := filepath.Join(rootDirPath, "app.yml")
+	_fontPath = filepath.Join(rootDirPath, "font/MicrosoftYaHeiMono-CP950.ttf")
 	_config = newConfiguration()
 	if _, err := os.Stat(configPath); !os.IsNotExist(err) {
 		// config exists

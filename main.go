@@ -1,9 +1,14 @@
 package main
 
 import (
-	"fmt"
+	"context"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -12,19 +17,40 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// serve /static/** files
-	staticFileServer := http.FileServer(http.Dir("static"))
-	http.HandleFunc("/static/", http.StripPrefix("/static/", staticFileServer).ServeHTTP)
-	// serve /downloaded/** files
-	downloadedFileServer := http.FileServer(http.Dir(app.downloadDir))
-	http.HandleFunc("/downloaded/", http.StripPrefix("/downloaded/", downloadedFileServer).ServeHTTP)
 
-	http.HandleFunc("/callback", app.Callback)
+	router := gin.Default()
+	router.Static("/static", "./static")
+	router.Static("/downloaded", "./downloaded")
+	router.POST("/callback", app.Callback)
+	router.GET("/game/:gameid/:type", app.getGamePlayInfo)
+	router.GET("/standing/:conference", app.getStandingInfo)
 
-	http.HandleFunc("/statistic", app.Statistic)
+	// admin
+	router.GET("/statistic", app.Statistic)
 
-	addr := fmt.Sprintf(":%s", _config.Bind)
-	if err := http.ListenAndServe(addr, nil); err != nil {
-		log.Fatal(err)
+	srv := &http.Server{
+		Addr:    ":" + _config.Bind,
+		Handler: router,
 	}
+
+	go func() {
+		// service connections
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("listen: %s\n", err)
+		}
+	}()
+
+	// Wait for interrupt signal to gracefully shutdown the server with
+	// a timeout of 5 seconds.
+	quit := make(chan os.Signal)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+	log.Println("Shutdown Server ...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatal("Server Shutdown:", err)
+	}
+	log.Println("Server exiting")
 }

@@ -1,17 +1,27 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"image"
+	"image/draw"
+	"image/png"
+	"io/ioutil"
 	"log"
-	"net/http"
+	"math"
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/gin-gonic/gin"
+	"github.com/golang/freetype/truetype"
 	"github.com/line/line-bot-sdk-go/linebot"
+	"golang.org/x/image/font"
+	"golang.org/x/image/math/fixed"
 )
 
 const (
@@ -85,13 +95,14 @@ func NewNBABotClient(channelSecret, channelToken, appBaseURL string) (*NBABotCli
 	}, nil
 }
 
-func (app *NBABotClient) Callback(w http.ResponseWriter, r *http.Request) {
+func (app *NBABotClient) Callback(c *gin.Context) {
+	r := c.Request
 	events, err := app.bot.ParseRequest(r)
 	if err != nil {
 		if err == linebot.ErrInvalidSignature {
-			w.WriteHeader(400)
+			c.Writer.WriteHeader(400)
 		} else {
-			w.WriteHeader(500)
+			c.Writer.WriteHeader(500)
 		}
 		return
 	}
@@ -113,52 +124,22 @@ func (app *NBABotClient) Callback(w http.ResponseWriter, r *http.Request) {
 			if len(dataArr) != 2 {
 				return
 			}
+			timestamp := strconv.FormatInt(time.Now().Unix(), 10)
 			teamType := dataArr[0]
 			gameID := dataArr[1]
-			pInfo, err := GetNBAGamePlayerByGameID(gameID)
-			if err != nil {
-				log.Printf("GetNBAGamePlayerByGameID err: %v", err)
-				return
+			imageUrl := app.appBaseURL + "/game/" + gameID + "/" + teamType + "?version=" + timestamp
+			if _, err := app.bot.ReplyMessage(
+				event.ReplyToken,
+				linebot.NewImageMessage(imageUrl, imageUrl),
+			).Do(); err != nil {
+				log.Printf("GetNBAGamePlayerByGameID imageUrl err: %v", err)
 			}
 			app.CounterIncs("比賽數據統計")
-
-			sendMseeage := " 球員｜位置\n上場時間｜得分｜籃板｜助攻 \n-----------\n"
-			messageFmt := "%s | %s\n%s | %d | %d | %d \n-----------\n"
-			if teamType == "away" {
-				for _, player := range pInfo.Payload.AwayTeam.GamePlayers {
-					if player.StatTotal.Mins == 0 {
-						continue
-					}
-					name := fmt.Sprintf("%s-%s", player.Profile.FirstName, player.Profile.LastName)
-					position := player.Profile.Position
-					upTime := fmt.Sprintf("%d:%d", player.StatTotal.Mins, player.StatTotal.Secs)
-					points := player.StatTotal.Points
-					rebs := player.StatTotal.Rebs
-					assists := player.StatTotal.Assists
-					sendMseeage += fmt.Sprintf(messageFmt, name, position, upTime, points, rebs, assists)
-				}
-			} else {
-				for _, player := range pInfo.Payload.HomeTeam.GamePlayers {
-					if player.StatTotal.Mins == 0 {
-						continue
-					}
-					name := fmt.Sprintf("%s-%s", player.Profile.FirstName, player.Profile.LastName)
-					position := player.Profile.Position
-					upTime := fmt.Sprintf("%d:%d", player.StatTotal.Mins, player.StatTotal.Secs)
-					points := player.StatTotal.Points
-					rebs := player.StatTotal.Rebs
-					assists := player.StatTotal.Assists
-					sendMseeage += fmt.Sprintf(messageFmt, name, position, upTime, points, rebs, assists)
-				}
-			}
-			if err := app.replyText(event.ReplyToken, sendMseeage); err != nil {
-				log.Print(err)
-			}
 		}
 	}
 }
 
-func (app *NBABotClient) Statistic(w http.ResponseWriter, r *http.Request) {
+func (app *NBABotClient) Statistic(c *gin.Context) {
 	app.RLock()
 	defer app.RUnlock()
 	response := ""
@@ -172,7 +153,7 @@ func (app *NBABotClient) Statistic(w http.ResponseWriter, r *http.Request) {
 	}
 	response += fmt.Sprintf("統計開始時間： %s", app.initTime.Format(DATE_TIME_LAYOUT))
 
-	fmt.Fprintf(w, "%s", response)
+	fmt.Fprintf(c.Writer, "%s", response)
 }
 
 func (app *NBABotClient) CounterIncs(key string) {
@@ -258,42 +239,42 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 		app.CounterIncs(recMsg)
 
 	case CmdEasternConferenceStanding:
-		data, err := GetNBAConferenceStanding()
-		if err != nil {
-			return err
-		}
-		sendMseeage := app.ParseConferenceStandingToMessage(data, "Eastern")
-		if err := app.replyText(replyToken, sendMseeage); err != nil {
-			log.Print(err)
+		timestamp := strconv.FormatInt(time.Now().Unix(), 10)
+		imageUrl := app.appBaseURL + "/standing/Eastern?version=" + timestamp
+		if _, err := app.bot.ReplyMessage(
+			replyToken,
+			linebot.NewImageMessage(imageUrl, imageUrl),
+		).Do(); err != nil {
+			log.Printf("ParseConferenceStandingToMessage imageUrl err: %v", err)
 		}
 		app.CounterIncs(recMsg)
 	case CmdWesternConferenceStanding:
-		data, err := GetNBAConferenceStanding()
-		if err != nil {
-			return err
-		}
-		sendMseeage := app.ParseConferenceStandingToMessage(data, "Western")
-		if err := app.replyText(replyToken, sendMseeage); err != nil {
-			log.Print(err)
+		timestamp := strconv.FormatInt(time.Now().Unix(), 10)
+		imageUrl := app.appBaseURL + "/standing/Western?version=" + timestamp
+		if _, err := app.bot.ReplyMessage(
+			replyToken,
+			linebot.NewImageMessage(imageUrl, imageUrl),
+		).Do(); err != nil {
+			log.Printf("ParseConferenceStandingToMessage imageUrl err: %v", err)
 		}
 		app.CounterIncs(recMsg)
 
-	// case "profile":
-	// 	if source.UserID != "" {
-	// 		profile, err := app.bot.GetProfile(source.UserID).Do()
-	// 		if err != nil {
-	// 			return app.replyText(replyToken, err.Error())
-	// 		}
-	// 		if _, err := app.bot.ReplyMessage(
-	// 			replyToken,
-	// 			linebot.NewTextMessage("Display name: "+profile.DisplayName),
-	// 			linebot.NewTextMessage("Status message: "+profile.StatusMessage),
-	// 		).Do(); err != nil {
-	// 			return err
-	// 		}
-	// 	} else {
-	// 		return app.replyText(replyToken, "Bot can't use profile API without user ID")
-	// 	}
+		// case "profile":
+		// 	if source.UserID != "" {
+		// 		profile, err := app.bot.GetProfile(source.UserID).Do()
+		// 		if err != nil {
+		// 			return app.replyText(replyToken, err.Error())
+		// 		}
+		// 		if _, err := app.bot.ReplyMessage(
+		// 			replyToken,
+		// 			linebot.NewTextMessage("Display name: "+profile.DisplayName),
+		// 			linebot.NewTextMessage("Status message: "+profile.StatusMessage),
+		// 		).Do(); err != nil {
+		// 			return err
+		// 		}
+		// 	} else {
+		// 		return app.replyText(replyToken, "Bot can't use profile API without user ID")
+		// 	}
 	default:
 		app.CounterIncs("其它")
 	}
@@ -387,17 +368,265 @@ func (app *NBABotClient) ParseConferenceStandingToMessage(data *ConferenceStandi
 	return sendMseeage
 }
 
-func parseTeamName(team string, conference string) string {
-	if conference == "Western" {
-		if len(team) < 9 {
-			return team + "   "
+// func (app *NBABotClient) ParsePlayInfoToTextMessage(pInfo *GamePlayerInfo, teamType string) string {
+// 	sendMseeage := " 球員｜位置\n上場時間｜得分｜籃板｜助攻 \n-----------\n"
+// 	messageFmt := "%s | %s\n%s | %d | %d | %d \n-----------\n"
+// 	if teamType == "away" {
+// 		for _, player := range pInfo.Payload.AwayTeam.GamePlayers {
+// 			if player.StatTotal.Mins == 0 {
+// 				continue
+// 			}
+// 			name := fmt.Sprintf("%s-%s", player.Profile.FirstName, player.Profile.LastName)
+// 			position := player.Profile.Position
+// 			upTime := fmt.Sprintf("%d:%d", player.StatTotal.Mins, player.StatTotal.Secs)
+// 			points := player.StatTotal.Points
+// 			rebs := player.StatTotal.Rebs
+// 			assists := player.StatTotal.Assists
+// 			sendMseeage += fmt.Sprintf(messageFmt, name, position, upTime, points, rebs, assists)
+// 		}
+// 	} else {
+// 		for _, player := range pInfo.Payload.HomeTeam.GamePlayers {
+// 			if player.StatTotal.Mins == 0 {
+// 				continue
+// 			}
+// 			name := fmt.Sprintf("%s-%s", player.Profile.FirstName, player.Profile.LastName)
+// 			position := player.Profile.Position
+// 			upTime := fmt.Sprintf("%d:%d", player.StatTotal.Mins, player.StatTotal.Secs)
+// 			points := player.StatTotal.Points
+// 			rebs := player.StatTotal.Rebs
+// 			assists := player.StatTotal.Assists
+// 			sendMseeage += fmt.Sprintf(messageFmt, name, position, upTime, points, rebs, assists)
+// 		}
+// 	}
+// 	return sendMseeage
+// }
+
+var PlayerInfoColumn = []string{"球員", "位置", "上場時間", "得分", "籃板", "助攻"}
+
+func (app *NBABotClient) ParsePlayInfoToImgMessage(c *gin.Context, pInfo *GamePlayerInfo, teamType string) {
+	messageArr := [][]string{}
+	messageArr = append(messageArr, PlayerInfoColumn)
+	title := UtcMillis2TimeString(pInfo.Payload.GameProfile.UtcMillis, DATE_TIME_LAYOUT)
+	subTitle := ""
+	homeTeamName := pInfo.Payload.HomeTeam.Profile.Name
+	awayTeamName := pInfo.Payload.AwayTeam.Profile.Name
+	title += fmt.Sprintf("  %s VS %s", homeTeamName, awayTeamName)
+	if teamType == "away" {
+		subTitle += "客 - " + awayTeamName
+		for _, player := range pInfo.Payload.AwayTeam.GamePlayers {
+			if player.StatTotal.Mins == 0 {
+				continue
+			}
+			mArr := []string{}
+			name := fmt.Sprintf("%s-%s", player.Profile.FirstName, player.Profile.LastName)
+			position := player.Profile.Position
+			upTime := fmt.Sprintf("%d:%d", player.StatTotal.Mins, player.StatTotal.Secs)
+			points := strconv.Itoa(player.StatTotal.Points)
+			rebs := strconv.Itoa(player.StatTotal.Rebs)
+			assists := strconv.Itoa(player.StatTotal.Assists)
+			mArr = append(mArr, name, position, upTime, points, rebs, assists)
+			messageArr = append(messageArr, mArr)
 		}
 	} else {
-		if len(team) == 6 {
-			return team + "      "
-		} else if len(team) < 6 {
-			return team + "     "
+		subTitle += "主 - " + homeTeamName
+		for _, player := range pInfo.Payload.HomeTeam.GamePlayers {
+			if player.StatTotal.Mins == 0 {
+				continue
+			}
+			mArr := []string{}
+			name := fmt.Sprintf("%s-%s", player.Profile.FirstName, player.Profile.LastName)
+			position := player.Profile.Position
+			upTime := fmt.Sprintf("%02d:%02d", player.StatTotal.Mins, player.StatTotal.Secs)
+			points := strconv.Itoa(player.StatTotal.Points)
+			rebs := strconv.Itoa(player.StatTotal.Rebs)
+			assists := strconv.Itoa(player.StatTotal.Assists)
+			mArr = append(mArr, name, position, upTime, points, rebs, assists)
+			messageArr = append(messageArr, mArr)
 		}
 	}
-	return team
+	if len(messageArr) < 2 {
+		subTitle = "未開賽"
+		messageArr = [][]string{}
+	}
+
+	convertTextArrToimage(c, &TextToImageOpt{
+		Title:    title,
+		SubTitle: subTitle,
+		TextData: messageArr,
+		ImgWidth: 720,
+	})
+}
+
+var StandingInfoColumn = []string{"", "排名", "勝負", "勝差"}
+
+func (app *NBABotClient) ParseConferenceStandingToImgMessage(c *gin.Context, data *ConferenceStanding, conference string) {
+	messageArr := [][]string{}
+	messageArr = append(messageArr, StandingInfoColumn)
+	for _, group := range data.Payload.StandingGroups {
+		if strings.ToLower(group.Conference) == strings.ToLower(conference) {
+			teams := group.Teams
+			sort.Slice(teams, func(i, j int) bool {
+				return group.Teams[j].Standings.ConfRank > group.Teams[i].Standings.ConfRank
+			})
+			for _, team := range teams {
+				mArr := []string{}
+				rank := fmt.Sprintf("%02d", team.Standings.ConfRank)
+				teamName := team.Profile.Name
+				winLose := fmt.Sprintf("%2d - %2d", team.Standings.Wins, team.Standings.Losses)
+				confGamesBehind := fmt.Sprintf("%.1f", team.Standings.ConfGamesBehind)
+				mArr = append(mArr, rank, teamName, winLose, confGamesBehind)
+				messageArr = append(messageArr, mArr)
+			}
+		}
+	}
+	opt := &TextToImageOpt{
+		TextData: messageArr,
+		ImgWidth: 370,
+	}
+	if conference == "Eastern" {
+		opt.Title = "東區戰績"
+	} else {
+		opt.Title = "西區戰績"
+	}
+
+	convertTextArrToimage(c, opt)
+}
+
+type TextToImageOpt struct {
+	Title    string
+	SubTitle string
+	TextData [][]string
+	ImgWidth int
+}
+
+func convertTextArrToimage(c *gin.Context, opt *TextToImageOpt) {
+	textData := opt.TextData
+	title := opt.Title
+	subTitle := opt.SubTitle
+
+	if len(textData) == 0 && len(title) == 0 {
+		return
+	}
+	size := float64(20)
+	dpi := float64(72)
+	spacing := float64(2)
+	fontfile := _fontPath
+	// Read the font data.
+	fontBytes, err := ioutil.ReadFile(fontfile)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	f, err := truetype.Parse(fontBytes)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	fg, bg := image.White, image.Black
+
+	y := 20 + int(math.Ceil(size*dpi/72))
+	dy := int(math.Ceil(size * spacing * dpi / 72))
+	imgH := y + dy*(len(textData)+1)
+	if len(subTitle) > 0 {
+		imgH += dy
+	}
+	imgW := opt.ImgWidth
+	rgba := image.NewRGBA(image.Rect(0, 0, imgW, imgH))
+	draw.Draw(rgba, rgba.Bounds(), bg, image.ZP, draw.Src)
+	h := font.HintingNone
+	d := &font.Drawer{
+		Dst: rgba,
+		Src: fg,
+		Face: truetype.NewFace(f, &truetype.Options{
+			Size:    size,
+			DPI:     dpi,
+			Hinting: h,
+		}),
+	}
+	d.Dot = fixed.Point26_6{
+		X: (fixed.I(imgW) - d.MeasureString(title)) / 2,
+		Y: fixed.I(y),
+	}
+
+	d.DrawString(title)
+
+	if len(subTitle) > 0 {
+		d.Dot = fixed.Point26_6{
+			X: (fixed.I(imgW) - d.MeasureString(subTitle)) / 2,
+			Y: fixed.I(dy + y),
+		}
+		d.DrawString(subTitle)
+	}
+
+	if len(textData) > 0 {
+		preTextLen := 0
+		xAxis := 20
+		for index := 0; index < len(textData[0]); index++ {
+			maxTextlen := 0
+			yAxis := y
+			if len(subTitle) > 0 {
+				yAxis += dy
+			}
+			xAxis += preTextLen*11 + 20
+			for _, row := range textData {
+				yAxis += dy
+				text := row[index]
+				textLen := getRealTextLength(text)
+				if textLen > maxTextlen {
+					maxTextlen = textLen
+				}
+				d.Dot = fixed.P(xAxis, yAxis)
+				d.DrawString(text)
+			}
+			preTextLen = maxTextlen
+		}
+	}
+
+	b := bufio.NewWriter(c.Writer)
+	err = png.Encode(b, rgba)
+	if err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
+	err = b.Flush()
+	if err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
+}
+
+func (app *NBABotClient) getGamePlayInfo(c *gin.Context) {
+	gameID := c.Param("gameid")
+	teamType := c.Param("type")
+
+	pInfo, err := GetNBAGamePlayerByGameID(gameID)
+	if err != nil {
+		log.Printf("GetNBAGamePlayerByGameID err: %v", err)
+		return
+	}
+	app.CounterIncs("比賽數據圖片")
+	app.ParsePlayInfoToImgMessage(c, pInfo, teamType)
+}
+
+func (app *NBABotClient) getStandingInfo(c *gin.Context) {
+	conference := c.Param("conference")
+	data, err := GetNBAConferenceStanding()
+	if err != nil {
+		log.Printf("getStandingInfo err: %v", err)
+	}
+	app.CounterIncs("戰績圖片")
+	app.ParseConferenceStandingToImgMessage(c, data, conference)
+}
+
+func getRealTextLength(str string) int {
+	count := 0
+	for _, char := range str {
+		charStr := fmt.Sprintf("%c", char)
+		if len(charStr) > 2 {
+			count += 2
+		} else {
+			count += 1
+		}
+	}
+	return count
 }
