@@ -53,6 +53,9 @@ type NBABotClient struct {
 	bot *linebot.Client
 	sync.RWMutex
 	appBaseURL     string
+	standingImgURL string
+	allGameImgURL  string
+	nbaImgURL      string
 	downloadDir    string
 	commandCounter map[string]int
 	initTime       *time.Time
@@ -85,13 +88,16 @@ func NewNBABotClient(channelSecret, channelToken, appBaseURL string) (*NBABotCli
 	for _, cmd := range CmdArray {
 		cmdCounter[cmd] = 0
 	}
-
+	imgPath := appBaseURL + "/static/buttons/"
 	return &NBABotClient{
 		bot:            bot,
 		appBaseURL:     appBaseURL,
 		downloadDir:    downloadDir,
 		commandCounter: cmdCounter,
 		initTime:       &now,
+		standingImgURL: imgPath + "standing.png",
+		allGameImgURL:  imgPath + "allgame.png",
+		nbaImgURL:      imgPath + "nba.png",
 	}, nil
 }
 
@@ -167,17 +173,16 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 	log.Print(message.Text)
 	recMsg := strings.Trim(message.Text, " ")
 	recMsg = strings.ToUpper(recMsg)
-	imageURL := app.appBaseURL + "/static/buttons/nba.png"
 	switch recMsg {
 	case "NBA":
 		column1 := linebot.NewCarouselColumn(
-			imageURL, "NBA比分", "賽事即時比分",
+			app.allGameImgURL, "NBA比分", "賽事即時比分",
 			linebot.NewPostbackTemplateAction(TodayGameStr, CmdTodayGame, CmdTodayGame, ""),
 			linebot.NewPostbackTemplateAction(TomorrowGameStr, CmdTomorrowGame, CmdTomorrowGame, ""),
 			linebot.NewPostbackTemplateAction(YesterdayGameStr, CmdYesterdayGame, CmdYesterdayGame, ""),
 		)
 		column2 := linebot.NewCarouselColumn(
-			imageURL, "NBA戰績", "分區戰績",
+			app.standingImgURL, "NBA戰績", "分區戰績",
 			linebot.NewPostbackTemplateAction("分區戰績", "#分區戰績", "#分區戰績", ""),
 			linebot.NewPostbackTemplateAction(EasternConferenceStandingStr, CmdEasternConferenceStanding, CmdEasternConferenceStanding, ""),
 			linebot.NewPostbackTemplateAction(WesternConferenceStandingStr, CmdWesternConferenceStanding, CmdWesternConferenceStanding, ""),
@@ -193,7 +198,7 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 		app.CounterIncs(recMsg)
 	case "#分區戰績":
 		buttons := linebot.NewButtonsTemplate(
-			imageURL, "NBA功能列表", "戰績",
+			app.standingImgURL, "NBA功能列表", "戰績",
 			linebot.NewMessageTemplateAction("東區戰績", CmdEasternConferenceStanding),
 			linebot.NewMessageTemplateAction("西區戰績", CmdWesternConferenceStanding),
 		)
@@ -300,7 +305,6 @@ func (app *NBABotClient) replyText(replyToken, text string) error {
 }
 
 func (app *NBABotClient) ParseGameInfoToMessage(data *GameInfo) *linebot.TemplateMessage {
-	imageURL := app.appBaseURL + "/static/buttons/nba.png"
 	columns := []*linebot.CarouselColumn{}
 	message := "     主隊 : 客隊\n"
 	for index, val := range data.Payload.Date.Games {
@@ -331,7 +335,7 @@ func (app *NBABotClient) ParseGameInfoToMessage(data *GameInfo) *linebot.Templat
 		btnName1 := fmt.Sprintf("%s 數據統計", homeTeamName)
 		btnName2 := fmt.Sprintf("%s 數據統計", awayTeamName)
 		column := linebot.NewCarouselColumn(
-			imageURL, teamVS, gameInfo,
+			app.nbaImgURL, teamVS, gameInfo,
 			linebot.NewPostbackTemplateAction(btnName1, "home@"+val.Profile.GameID, "", ""),
 			linebot.NewPostbackTemplateAction(btnName2, "away@"+val.Profile.GameID, "", ""),
 		)
