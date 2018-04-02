@@ -424,8 +424,9 @@ func (app *NBABotClient) ParseGameScoreInfoToMessage(opt *ParseGameScoreOpt) lin
 			listBtnCmd += fmt.Sprintf("@%d", page+1)
 		}
 	}
-
+	message := ""
 	if opt.showList && page == 1 {
+		message += fmt.Sprintf("%s：%s\n", listBtnText, listBtnCmd)
 		firstColumn := linebot.NewCarouselColumn(
 			app.allGameImgURL, "賽事選單", "賽事選單",
 			linebot.NewPostbackTemplateAction(listBtnText, listBtnText, listBtnCmd, ""),
@@ -434,7 +435,7 @@ func (app *NBABotClient) ParseGameScoreInfoToMessage(opt *ParseGameScoreOpt) lin
 		)
 		columns = append(columns, firstColumn)
 	}
-	message := "     主隊 : 客隊\n"
+	message += "     主隊 : 客隊\n"
 
 	for index := startIndex; index < endIndex; index++ {
 		val := data[index]
@@ -464,7 +465,6 @@ func (app *NBABotClient) ParseGameScoreInfoToMessage(opt *ParseGameScoreOpt) lin
 			gameInfo = fmt.Sprintf(" %3d - %3d | %s %s", homeScore, awayScore, val.Boxscore.StatusDesc, val.Boxscore.PeriodClock)
 			bt3 = linebot.NewPostbackTemplateAction(btnName3, btnData3, "", "")
 		case "3": // 3: 結束
-			btnName3 += "比賽結束"
 			gameInfo = fmt.Sprintf(" %3d - %3d | %s %s", homeScore, awayScore, val.Boxscore.StatusDesc, val.Boxscore.PeriodClock)
 			bt3 = linebot.NewURITemplateAction("觀看 Highlights", val.HighlightsURL)
 		}
