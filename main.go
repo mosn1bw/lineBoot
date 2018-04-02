@@ -22,7 +22,8 @@ func main() {
 	router.Static("/static", "./static")
 	router.Static("/downloaded", "./downloaded")
 	router.POST("/callback", app.Callback)
-	router.GET("/game/:gameid/:type", app.getGamePlayInfo)
+	router.GET("/gamecol/info", app.getGameColumnInfo)
+	router.GET("/game/:gameid/:type", app.getGamePlayInfoEN)
 	router.GET("/standing/:conference", app.getStandingInfo)
 
 	// admin

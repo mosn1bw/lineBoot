@@ -51,446 +51,15 @@ type GameInfo struct {
 					Sequence      string      `json:"sequence"`
 					UtcMillis     string      `json:"utcMillis"`
 				} `json:"profile"`
-				Boxscore struct {
-					Attendance            string `json:"attendance"`
-					AwayScore             int    `json:"awayScore"`
-					GameLength            string `json:"gameLength"`
-					HomeScore             int    `json:"homeScore"`
-					OfficialsDisplayName1 string `json:"officialsDisplayName1"`
-					OfficialsDisplayName2 string `json:"officialsDisplayName2"`
-					OfficialsDisplayName3 string `json:"officialsDisplayName3"`
-					Period                string `json:"period"`
-					PeriodClock           string `json:"periodClock"`
-					Status                string `json:"status"`
-					StatusDesc            string `json:"statusDesc"`
-					Ties                  string `json:"ties"`
-				} `json:"boxscore"`
-				Urls []struct {
+				Boxscore GameBoxscore `json:"boxscore"`
+				Urls     []struct {
 					DisplayText string `json:"displayText"`
 					Type        string `json:"type"`
 					Value       string `json:"value"`
 				} `json:"urls"`
 				Broadcasters []interface{} `json:"broadcasters"`
-				HomeTeam     struct {
-					Profile struct {
-						Abbr              string `json:"abbr"`
-						City              string `json:"city"`
-						CityEn            string `json:"cityEn"`
-						Code              string `json:"code"`
-						Conference        string `json:"conference"`
-						DisplayAbbr       string `json:"displayAbbr"`
-						DisplayConference string `json:"displayConference"`
-						Division          string `json:"division"`
-						ID                string `json:"id"`
-						IsAllStarTeam     bool   `json:"isAllStarTeam"`
-						IsLeagueTeam      bool   `json:"isLeagueTeam"`
-						LeagueID          string `json:"leagueId"`
-						Name              string `json:"name"`
-						NameEn            string `json:"nameEn"`
-					} `json:"profile"`
-					Matchup struct {
-						ConfRank   string      `json:"confRank"`
-						DivRank    string      `json:"divRank"`
-						Losses     string      `json:"losses"`
-						SeriesText interface{} `json:"seriesText"`
-						Wins       string      `json:"wins"`
-					} `json:"matchup"`
-					Score struct {
-						Assists                int     `json:"assists"`
-						BiggestLead            int     `json:"biggestLead"`
-						Blocks                 int     `json:"blocks"`
-						BlocksAgainst          int     `json:"blocksAgainst"`
-						DefRebs                int     `json:"defRebs"`
-						Disqualifications      int     `json:"disqualifications"`
-						Ejections              int     `json:"ejections"`
-						FastBreakPoints        int     `json:"fastBreakPoints"`
-						Fga                    int     `json:"fga"`
-						Fgm                    int     `json:"fgm"`
-						Fgpct                  float64 `json:"fgpct"`
-						FlagrantFouls          int     `json:"flagrantFouls"`
-						Fouls                  int     `json:"fouls"`
-						Fta                    int     `json:"fta"`
-						Ftm                    int     `json:"ftm"`
-						Ftpct                  float64 `json:"ftpct"`
-						FullTimeoutsRemaining  int     `json:"fullTimeoutsRemaining"`
-						Mins                   int     `json:"mins"`
-						OffRebs                int     `json:"offRebs"`
-						Ot10Score              int     `json:"ot10Score"`
-						Ot1Score               int     `json:"ot1Score"`
-						Ot2Score               int     `json:"ot2Score"`
-						Ot3Score               int     `json:"ot3Score"`
-						Ot4Score               int     `json:"ot4Score"`
-						Ot5Score               int     `json:"ot5Score"`
-						Ot6Score               int     `json:"ot6Score"`
-						Ot7Score               int     `json:"ot7Score"`
-						Ot8Score               int     `json:"ot8Score"`
-						Ot9Score               int     `json:"ot9Score"`
-						PointsInPaint          int     `json:"pointsInPaint"`
-						PointsOffTurnovers     int     `json:"pointsOffTurnovers"`
-						Q1Score                int     `json:"q1Score"`
-						Q2Score                int     `json:"q2Score"`
-						Q3Score                int     `json:"q3Score"`
-						Q4Score                int     `json:"q4Score"`
-						Rebs                   int     `json:"rebs"`
-						Score                  int     `json:"score"`
-						Seconds                int     `json:"seconds"`
-						ShortTimeoutsRemaining int     `json:"shortTimeoutsRemaining"`
-						Steals                 int     `json:"steals"`
-						TechnicalFouls         int     `json:"technicalFouls"`
-						Tpa                    int     `json:"tpa"`
-						Tpm                    int     `json:"tpm"`
-						Tppct                  float64 `json:"tppct"`
-						Turnovers              int     `json:"turnovers"`
-					} `json:"score"`
-					PointGameLeader struct {
-						Profile struct {
-							Code               string `json:"code"`
-							Country            string `json:"country"`
-							DisplayAffiliation string `json:"displayAffiliation"`
-							DisplayName        string `json:"displayName"`
-							DisplayNameEn      string `json:"displayNameEn"`
-							Dob                string `json:"dob"`
-							DraftYear          string `json:"draftYear"`
-							Experience         string `json:"experience"`
-							FirstInitial       string `json:"firstInitial"`
-							FirstName          string `json:"firstName"`
-							FirstNameEn        string `json:"firstNameEn"`
-							Height             string `json:"height"`
-							JerseyNo           string `json:"jerseyNo"`
-							LastName           string `json:"lastName"`
-							LastNameEn         string `json:"lastNameEn"`
-							LeagueID           string `json:"leagueId"`
-							PlayerID           string `json:"playerId"`
-							Position           string `json:"position"`
-							SchoolType         string `json:"schoolType"`
-							Weight             string `json:"weight"`
-						} `json:"profile"`
-						StatTotal struct {
-							Assists   int     `json:"assists"`
-							Blocks    int     `json:"blocks"`
-							DefRebs   int     `json:"defRebs"`
-							Fga       int     `json:"fga"`
-							Fgm       int     `json:"fgm"`
-							Fgpct     float64 `json:"fgpct"`
-							Fouls     int     `json:"fouls"`
-							Fta       int     `json:"fta"`
-							Ftm       int     `json:"ftm"`
-							Ftpct     float64 `json:"ftpct"`
-							Mins      int     `json:"mins"`
-							OffRebs   int     `json:"offRebs"`
-							Points    int     `json:"points"`
-							Rebs      int     `json:"rebs"`
-							Secs      int     `json:"secs"`
-							Steals    int     `json:"steals"`
-							Tpa       int     `json:"tpa"`
-							Tpm       int     `json:"tpm"`
-							Tppct     float64 `json:"tppct"`
-							Turnovers int     `json:"turnovers"`
-						} `json:"statTotal"`
-					} `json:"pointGameLeader"`
-					AssistGameLeader struct {
-						Profile struct {
-							Code               string `json:"code"`
-							Country            string `json:"country"`
-							DisplayAffiliation string `json:"displayAffiliation"`
-							DisplayName        string `json:"displayName"`
-							DisplayNameEn      string `json:"displayNameEn"`
-							Dob                string `json:"dob"`
-							DraftYear          string `json:"draftYear"`
-							Experience         string `json:"experience"`
-							FirstInitial       string `json:"firstInitial"`
-							FirstName          string `json:"firstName"`
-							FirstNameEn        string `json:"firstNameEn"`
-							Height             string `json:"height"`
-							JerseyNo           string `json:"jerseyNo"`
-							LastName           string `json:"lastName"`
-							LastNameEn         string `json:"lastNameEn"`
-							LeagueID           string `json:"leagueId"`
-							PlayerID           string `json:"playerId"`
-							Position           string `json:"position"`
-							SchoolType         string `json:"schoolType"`
-							Weight             string `json:"weight"`
-						} `json:"profile"`
-						StatTotal struct {
-							Assists   int     `json:"assists"`
-							Blocks    int     `json:"blocks"`
-							DefRebs   int     `json:"defRebs"`
-							Fga       int     `json:"fga"`
-							Fgm       int     `json:"fgm"`
-							Fgpct     float64 `json:"fgpct"`
-							Fouls     int     `json:"fouls"`
-							Fta       int     `json:"fta"`
-							Ftm       int     `json:"ftm"`
-							Ftpct     float64 `json:"ftpct"`
-							Mins      int     `json:"mins"`
-							OffRebs   int     `json:"offRebs"`
-							Points    int     `json:"points"`
-							Rebs      int     `json:"rebs"`
-							Secs      int     `json:"secs"`
-							Steals    int     `json:"steals"`
-							Tpa       int     `json:"tpa"`
-							Tpm       int     `json:"tpm"`
-							Tppct     float64 `json:"tppct"`
-							Turnovers int     `json:"turnovers"`
-						} `json:"statTotal"`
-					} `json:"assistGameLeader"`
-					ReboundGameLeader struct {
-						Profile struct {
-							Code               string `json:"code"`
-							Country            string `json:"country"`
-							DisplayAffiliation string `json:"displayAffiliation"`
-							DisplayName        string `json:"displayName"`
-							DisplayNameEn      string `json:"displayNameEn"`
-							Dob                string `json:"dob"`
-							DraftYear          string `json:"draftYear"`
-							Experience         string `json:"experience"`
-							FirstInitial       string `json:"firstInitial"`
-							FirstName          string `json:"firstName"`
-							FirstNameEn        string `json:"firstNameEn"`
-							Height             string `json:"height"`
-							JerseyNo           string `json:"jerseyNo"`
-							LastName           string `json:"lastName"`
-							LastNameEn         string `json:"lastNameEn"`
-							LeagueID           string `json:"leagueId"`
-							PlayerID           string `json:"playerId"`
-							Position           string `json:"position"`
-							SchoolType         string `json:"schoolType"`
-							Weight             string `json:"weight"`
-						} `json:"profile"`
-						StatTotal struct {
-							Assists   int     `json:"assists"`
-							Blocks    int     `json:"blocks"`
-							DefRebs   int     `json:"defRebs"`
-							Fga       int     `json:"fga"`
-							Fgm       int     `json:"fgm"`
-							Fgpct     float64 `json:"fgpct"`
-							Fouls     int     `json:"fouls"`
-							Fta       int     `json:"fta"`
-							Ftm       int     `json:"ftm"`
-							Ftpct     float64 `json:"ftpct"`
-							Mins      int     `json:"mins"`
-							OffRebs   int     `json:"offRebs"`
-							Points    int     `json:"points"`
-							Rebs      int     `json:"rebs"`
-							Secs      int     `json:"secs"`
-							Steals    int     `json:"steals"`
-							Tpa       int     `json:"tpa"`
-							Tpm       int     `json:"tpm"`
-							Tppct     float64 `json:"tppct"`
-							Turnovers int     `json:"turnovers"`
-						} `json:"statTotal"`
-					} `json:"reboundGameLeader"`
-				} `json:"homeTeam"`
-				AwayTeam struct {
-					Profile struct {
-						Abbr              string `json:"abbr"`
-						City              string `json:"city"`
-						CityEn            string `json:"cityEn"`
-						Code              string `json:"code"`
-						Conference        string `json:"conference"`
-						DisplayAbbr       string `json:"displayAbbr"`
-						DisplayConference string `json:"displayConference"`
-						Division          string `json:"division"`
-						ID                string `json:"id"`
-						IsAllStarTeam     bool   `json:"isAllStarTeam"`
-						IsLeagueTeam      bool   `json:"isLeagueTeam"`
-						LeagueID          string `json:"leagueId"`
-						Name              string `json:"name"`
-						NameEn            string `json:"nameEn"`
-					} `json:"profile"`
-					Matchup struct {
-						ConfRank   string      `json:"confRank"`
-						DivRank    string      `json:"divRank"`
-						Losses     string      `json:"losses"`
-						SeriesText interface{} `json:"seriesText"`
-						Wins       string      `json:"wins"`
-					} `json:"matchup"`
-					Score struct {
-						Assists                int     `json:"assists"`
-						BiggestLead            int     `json:"biggestLead"`
-						Blocks                 int     `json:"blocks"`
-						BlocksAgainst          int     `json:"blocksAgainst"`
-						DefRebs                int     `json:"defRebs"`
-						Disqualifications      int     `json:"disqualifications"`
-						Ejections              int     `json:"ejections"`
-						FastBreakPoints        int     `json:"fastBreakPoints"`
-						Fga                    int     `json:"fga"`
-						Fgm                    int     `json:"fgm"`
-						Fgpct                  float64 `json:"fgpct"`
-						FlagrantFouls          int     `json:"flagrantFouls"`
-						Fouls                  int     `json:"fouls"`
-						Fta                    int     `json:"fta"`
-						Ftm                    int     `json:"ftm"`
-						Ftpct                  float64 `json:"ftpct"`
-						FullTimeoutsRemaining  int     `json:"fullTimeoutsRemaining"`
-						Mins                   int     `json:"mins"`
-						OffRebs                int     `json:"offRebs"`
-						Ot10Score              int     `json:"ot10Score"`
-						Ot1Score               int     `json:"ot1Score"`
-						Ot2Score               int     `json:"ot2Score"`
-						Ot3Score               int     `json:"ot3Score"`
-						Ot4Score               int     `json:"ot4Score"`
-						Ot5Score               int     `json:"ot5Score"`
-						Ot6Score               int     `json:"ot6Score"`
-						Ot7Score               int     `json:"ot7Score"`
-						Ot8Score               int     `json:"ot8Score"`
-						Ot9Score               int     `json:"ot9Score"`
-						PointsInPaint          int     `json:"pointsInPaint"`
-						PointsOffTurnovers     int     `json:"pointsOffTurnovers"`
-						Q1Score                int     `json:"q1Score"`
-						Q2Score                int     `json:"q2Score"`
-						Q3Score                int     `json:"q3Score"`
-						Q4Score                int     `json:"q4Score"`
-						Rebs                   int     `json:"rebs"`
-						Score                  int     `json:"score"`
-						Seconds                int     `json:"seconds"`
-						ShortTimeoutsRemaining int     `json:"shortTimeoutsRemaining"`
-						Steals                 int     `json:"steals"`
-						TechnicalFouls         int     `json:"technicalFouls"`
-						Tpa                    int     `json:"tpa"`
-						Tpm                    int     `json:"tpm"`
-						Tppct                  float64 `json:"tppct"`
-						Turnovers              int     `json:"turnovers"`
-					} `json:"score"`
-					PointGameLeader struct {
-						Profile struct {
-							Code               string `json:"code"`
-							Country            string `json:"country"`
-							DisplayAffiliation string `json:"displayAffiliation"`
-							DisplayName        string `json:"displayName"`
-							DisplayNameEn      string `json:"displayNameEn"`
-							Dob                string `json:"dob"`
-							DraftYear          string `json:"draftYear"`
-							Experience         string `json:"experience"`
-							FirstInitial       string `json:"firstInitial"`
-							FirstName          string `json:"firstName"`
-							FirstNameEn        string `json:"firstNameEn"`
-							Height             string `json:"height"`
-							JerseyNo           string `json:"jerseyNo"`
-							LastName           string `json:"lastName"`
-							LastNameEn         string `json:"lastNameEn"`
-							LeagueID           string `json:"leagueId"`
-							PlayerID           string `json:"playerId"`
-							Position           string `json:"position"`
-							SchoolType         string `json:"schoolType"`
-							Weight             string `json:"weight"`
-						} `json:"profile"`
-						StatTotal struct {
-							Assists   int     `json:"assists"`
-							Blocks    int     `json:"blocks"`
-							DefRebs   int     `json:"defRebs"`
-							Fga       int     `json:"fga"`
-							Fgm       int     `json:"fgm"`
-							Fgpct     float64 `json:"fgpct"`
-							Fouls     int     `json:"fouls"`
-							Fta       int     `json:"fta"`
-							Ftm       int     `json:"ftm"`
-							Ftpct     float64 `json:"ftpct"`
-							Mins      int     `json:"mins"`
-							OffRebs   int     `json:"offRebs"`
-							Points    int     `json:"points"`
-							Rebs      int     `json:"rebs"`
-							Secs      int     `json:"secs"`
-							Steals    int     `json:"steals"`
-							Tpa       int     `json:"tpa"`
-							Tpm       int     `json:"tpm"`
-							Tppct     float64 `json:"tppct"`
-							Turnovers int     `json:"turnovers"`
-						} `json:"statTotal"`
-					} `json:"pointGameLeader"`
-					AssistGameLeader struct {
-						Profile struct {
-							Code               string `json:"code"`
-							Country            string `json:"country"`
-							DisplayAffiliation string `json:"displayAffiliation"`
-							DisplayName        string `json:"displayName"`
-							DisplayNameEn      string `json:"displayNameEn"`
-							Dob                string `json:"dob"`
-							DraftYear          string `json:"draftYear"`
-							Experience         string `json:"experience"`
-							FirstInitial       string `json:"firstInitial"`
-							FirstName          string `json:"firstName"`
-							FirstNameEn        string `json:"firstNameEn"`
-							Height             string `json:"height"`
-							JerseyNo           string `json:"jerseyNo"`
-							LastName           string `json:"lastName"`
-							LastNameEn         string `json:"lastNameEn"`
-							LeagueID           string `json:"leagueId"`
-							PlayerID           string `json:"playerId"`
-							Position           string `json:"position"`
-							SchoolType         string `json:"schoolType"`
-							Weight             string `json:"weight"`
-						} `json:"profile"`
-						StatTotal struct {
-							Assists   int     `json:"assists"`
-							Blocks    int     `json:"blocks"`
-							DefRebs   int     `json:"defRebs"`
-							Fga       int     `json:"fga"`
-							Fgm       int     `json:"fgm"`
-							Fgpct     float64 `json:"fgpct"`
-							Fouls     int     `json:"fouls"`
-							Fta       int     `json:"fta"`
-							Ftm       int     `json:"ftm"`
-							Ftpct     float64 `json:"ftpct"`
-							Mins      int     `json:"mins"`
-							OffRebs   int     `json:"offRebs"`
-							Points    int     `json:"points"`
-							Rebs      int     `json:"rebs"`
-							Secs      int     `json:"secs"`
-							Steals    int     `json:"steals"`
-							Tpa       int     `json:"tpa"`
-							Tpm       int     `json:"tpm"`
-							Tppct     float64 `json:"tppct"`
-							Turnovers int     `json:"turnovers"`
-						} `json:"statTotal"`
-					} `json:"assistGameLeader"`
-					ReboundGameLeader struct {
-						Profile struct {
-							Code               string `json:"code"`
-							Country            string `json:"country"`
-							DisplayAffiliation string `json:"displayAffiliation"`
-							DisplayName        string `json:"displayName"`
-							DisplayNameEn      string `json:"displayNameEn"`
-							Dob                string `json:"dob"`
-							DraftYear          string `json:"draftYear"`
-							Experience         string `json:"experience"`
-							FirstInitial       string `json:"firstInitial"`
-							FirstName          string `json:"firstName"`
-							FirstNameEn        string `json:"firstNameEn"`
-							Height             string `json:"height"`
-							JerseyNo           string `json:"jerseyNo"`
-							LastName           string `json:"lastName"`
-							LastNameEn         string `json:"lastNameEn"`
-							LeagueID           string `json:"leagueId"`
-							PlayerID           string `json:"playerId"`
-							Position           string `json:"position"`
-							SchoolType         string `json:"schoolType"`
-							Weight             string `json:"weight"`
-						} `json:"profile"`
-						StatTotal struct {
-							Assists   int     `json:"assists"`
-							Blocks    int     `json:"blocks"`
-							DefRebs   int     `json:"defRebs"`
-							Fga       int     `json:"fga"`
-							Fgm       int     `json:"fgm"`
-							Fgpct     float64 `json:"fgpct"`
-							Fouls     int     `json:"fouls"`
-							Fta       int     `json:"fta"`
-							Ftm       int     `json:"ftm"`
-							Ftpct     float64 `json:"ftpct"`
-							Mins      int     `json:"mins"`
-							OffRebs   int     `json:"offRebs"`
-							Points    int     `json:"points"`
-							Rebs      int     `json:"rebs"`
-							Secs      int     `json:"secs"`
-							Steals    int     `json:"steals"`
-							Tpa       int     `json:"tpa"`
-							Tpm       int     `json:"tpm"`
-							Tppct     float64 `json:"tppct"`
-							Turnovers int     `json:"turnovers"`
-						} `json:"statTotal"`
-					} `json:"reboundGameLeader"`
-				} `json:"awayTeam"`
+				HomeTeam     TeamInfo      `json:"homeTeam"`
+				AwayTeam     TeamInfo      `json:"awayTeam"`
 			} `json:"games"`
 			DateMillis string `json:"dateMillis"`
 			GameCount  string `json:"gameCount"`
@@ -550,21 +119,8 @@ type GamePlayerInfo struct {
 			Sequence      string      `json:"sequence"`
 			UtcMillis     string      `json:"utcMillis"`
 		} `json:"gameProfile"`
-		Boxscore struct {
-			Attendance            string `json:"attendance"`
-			AwayScore             int    `json:"awayScore"`
-			GameLength            string `json:"gameLength"`
-			HomeScore             int    `json:"homeScore"`
-			OfficialsDisplayName1 string `json:"officialsDisplayName1"`
-			OfficialsDisplayName2 string `json:"officialsDisplayName2"`
-			OfficialsDisplayName3 string `json:"officialsDisplayName3"`
-			Period                string `json:"period"`
-			PeriodClock           string `json:"periodClock"`
-			Status                string `json:"status"`
-			StatusDesc            string `json:"statusDesc"`
-			Ties                  string `json:"ties"`
-		} `json:"boxscore"`
-		Urls []struct {
+		Boxscore GameBoxscore `json:"boxscore"`
+		Urls     []struct {
 			DisplayText string `json:"displayText"`
 			Type        string `json:"type"`
 			Value       string `json:"value"`
@@ -658,60 +214,7 @@ type GamePlayerInfo struct {
 				SeriesText interface{} `json:"seriesText"`
 				Wins       string      `json:"wins"`
 			} `json:"matchup"`
-			GamePlayers []struct {
-				Profile struct {
-					Code               string `json:"code"`
-					Country            string `json:"country"`
-					DisplayAffiliation string `json:"displayAffiliation"`
-					DisplayName        string `json:"displayName"`
-					DisplayNameEn      string `json:"displayNameEn"`
-					Dob                string `json:"dob"`
-					DraftYear          string `json:"draftYear"`
-					Experience         string `json:"experience"`
-					FirstInitial       string `json:"firstInitial"`
-					FirstName          string `json:"firstName"`
-					FirstNameEn        string `json:"firstNameEn"`
-					Height             string `json:"height"`
-					JerseyNo           string `json:"jerseyNo"`
-					LastName           string `json:"lastName"`
-					LastNameEn         string `json:"lastNameEn"`
-					LeagueID           string `json:"leagueId"`
-					PlayerID           string `json:"playerId"`
-					Position           string `json:"position"`
-					SchoolType         string `json:"schoolType"`
-					Weight             string `json:"weight"`
-				} `json:"profile"`
-				Boxscore struct {
-					DnpReason string `json:"dnpReason"`
-					IsStarter string `json:"isStarter"`
-					OnCourt   string `json:"onCourt"`
-					Order     int    `json:"order"`
-					PlusMinus string `json:"plusMinus"`
-					Position  string `json:"position"`
-				} `json:"boxscore"`
-				StatTotal struct {
-					Assists   int     `json:"assists"`
-					Blocks    int     `json:"blocks"`
-					DefRebs   int     `json:"defRebs"`
-					Fga       int     `json:"fga"`
-					Fgm       int     `json:"fgm"`
-					Fgpct     float64 `json:"fgpct"`
-					Fouls     int     `json:"fouls"`
-					Fta       int     `json:"fta"`
-					Ftm       int     `json:"ftm"`
-					Ftpct     float64 `json:"ftpct"`
-					Mins      int     `json:"mins"`
-					OffRebs   int     `json:"offRebs"`
-					Points    int     `json:"points"`
-					Rebs      int     `json:"rebs"`
-					Secs      int     `json:"secs"`
-					Steals    int     `json:"steals"`
-					Tpa       int     `json:"tpa"`
-					Tpm       int     `json:"tpm"`
-					Tppct     float64 `json:"tppct"`
-					Turnovers int     `json:"turnovers"`
-				} `json:"statTotal"`
-			} `json:"gamePlayers"`
+			GamePlayers     []GamePlayers `json:"gamePlayers"`
 			PointGameLeader struct {
 				Profile struct {
 					Code               string `json:"code"`
@@ -1076,60 +579,7 @@ type GamePlayerInfo struct {
 				SeriesText interface{} `json:"seriesText"`
 				Wins       string      `json:"wins"`
 			} `json:"matchup"`
-			GamePlayers []struct {
-				Profile struct {
-					Code               string `json:"code"`
-					Country            string `json:"country"`
-					DisplayAffiliation string `json:"displayAffiliation"`
-					DisplayName        string `json:"displayName"`
-					DisplayNameEn      string `json:"displayNameEn"`
-					Dob                string `json:"dob"`
-					DraftYear          string `json:"draftYear"`
-					Experience         string `json:"experience"`
-					FirstInitial       string `json:"firstInitial"`
-					FirstName          string `json:"firstName"`
-					FirstNameEn        string `json:"firstNameEn"`
-					Height             string `json:"height"`
-					JerseyNo           string `json:"jerseyNo"`
-					LastName           string `json:"lastName"`
-					LastNameEn         string `json:"lastNameEn"`
-					LeagueID           string `json:"leagueId"`
-					PlayerID           string `json:"playerId"`
-					Position           string `json:"position"`
-					SchoolType         string `json:"schoolType"`
-					Weight             string `json:"weight"`
-				} `json:"profile"`
-				Boxscore struct {
-					DnpReason string `json:"dnpReason"`
-					IsStarter string `json:"isStarter"`
-					OnCourt   string `json:"onCourt"`
-					Order     int    `json:"order"`
-					PlusMinus string `json:"plusMinus"`
-					Position  string `json:"position"`
-				} `json:"boxscore"`
-				StatTotal struct {
-					Assists   int     `json:"assists"`
-					Blocks    int     `json:"blocks"`
-					DefRebs   int     `json:"defRebs"`
-					Fga       int     `json:"fga"`
-					Fgm       int     `json:"fgm"`
-					Fgpct     float64 `json:"fgpct"`
-					Fouls     int     `json:"fouls"`
-					Fta       int     `json:"fta"`
-					Ftm       int     `json:"ftm"`
-					Ftpct     float64 `json:"ftpct"`
-					Mins      int     `json:"mins"`
-					OffRebs   int     `json:"offRebs"`
-					Points    int     `json:"points"`
-					Rebs      int     `json:"rebs"`
-					Secs      int     `json:"secs"`
-					Steals    int     `json:"steals"`
-					Tpa       int     `json:"tpa"`
-					Tpm       int     `json:"tpm"`
-					Tppct     float64 `json:"tppct"`
-					Turnovers int     `json:"turnovers"`
-				} `json:"statTotal"`
-			} `json:"gamePlayers"`
+			GamePlayers     []GamePlayers `json:"gamePlayers"`
 			PointGameLeader struct {
 				Profile struct {
 					Code               string `json:"code"`
@@ -1541,4 +991,285 @@ type ConferenceStanding struct {
 		Grouping string `json:"grouping"`
 	} `json:"payload"`
 	Timestamp string `json:"timestamp"`
+}
+
+type GameBoxscore struct {
+	Attendance            string `json:"attendance"`
+	AwayScore             int    `json:"awayScore"`
+	GameLength            string `json:"gameLength"`
+	HomeScore             int    `json:"homeScore"`
+	OfficialsDisplayName1 string `json:"officialsDisplayName1"`
+	OfficialsDisplayName2 string `json:"officialsDisplayName2"`
+	OfficialsDisplayName3 string `json:"officialsDisplayName3"`
+	Period                string `json:"period"`
+	PeriodClock           string `json:"periodClock"`
+	Status                string `json:"status"`
+	StatusDesc            string `json:"statusDesc"`
+	Ties                  string `json:"ties"`
+}
+
+type TeamInfo struct {
+	Profile struct {
+		Abbr              string `json:"abbr"`
+		City              string `json:"city"`
+		CityEn            string `json:"cityEn"`
+		Code              string `json:"code"`
+		Conference        string `json:"conference"`
+		DisplayAbbr       string `json:"displayAbbr"`
+		DisplayConference string `json:"displayConference"`
+		Division          string `json:"division"`
+		ID                string `json:"id"`
+		IsAllStarTeam     bool   `json:"isAllStarTeam"`
+		IsLeagueTeam      bool   `json:"isLeagueTeam"`
+		LeagueID          string `json:"leagueId"`
+		Name              string `json:"name"`
+		NameEn            string `json:"nameEn"`
+	} `json:"profile"`
+	Matchup struct {
+		ConfRank   string      `json:"confRank"`
+		DivRank    string      `json:"divRank"`
+		Losses     string      `json:"losses"`
+		SeriesText interface{} `json:"seriesText"`
+		Wins       string      `json:"wins"`
+	} `json:"matchup"`
+	Score struct {
+		Assists                int     `json:"assists"`
+		BiggestLead            int     `json:"biggestLead"`
+		Blocks                 int     `json:"blocks"`
+		BlocksAgainst          int     `json:"blocksAgainst"`
+		DefRebs                int     `json:"defRebs"`
+		Disqualifications      int     `json:"disqualifications"`
+		Ejections              int     `json:"ejections"`
+		FastBreakPoints        int     `json:"fastBreakPoints"`
+		Fga                    int     `json:"fga"`
+		Fgm                    int     `json:"fgm"`
+		Fgpct                  float64 `json:"fgpct"`
+		FlagrantFouls          int     `json:"flagrantFouls"`
+		Fouls                  int     `json:"fouls"`
+		Fta                    int     `json:"fta"`
+		Ftm                    int     `json:"ftm"`
+		Ftpct                  float64 `json:"ftpct"`
+		FullTimeoutsRemaining  int     `json:"fullTimeoutsRemaining"`
+		Mins                   int     `json:"mins"`
+		OffRebs                int     `json:"offRebs"`
+		Ot10Score              int     `json:"ot10Score"`
+		Ot1Score               int     `json:"ot1Score"`
+		Ot2Score               int     `json:"ot2Score"`
+		Ot3Score               int     `json:"ot3Score"`
+		Ot4Score               int     `json:"ot4Score"`
+		Ot5Score               int     `json:"ot5Score"`
+		Ot6Score               int     `json:"ot6Score"`
+		Ot7Score               int     `json:"ot7Score"`
+		Ot8Score               int     `json:"ot8Score"`
+		Ot9Score               int     `json:"ot9Score"`
+		PointsInPaint          int     `json:"pointsInPaint"`
+		PointsOffTurnovers     int     `json:"pointsOffTurnovers"`
+		Q1Score                int     `json:"q1Score"`
+		Q2Score                int     `json:"q2Score"`
+		Q3Score                int     `json:"q3Score"`
+		Q4Score                int     `json:"q4Score"`
+		Rebs                   int     `json:"rebs"`
+		Score                  int     `json:"score"`
+		Seconds                int     `json:"seconds"`
+		ShortTimeoutsRemaining int     `json:"shortTimeoutsRemaining"`
+		Steals                 int     `json:"steals"`
+		TechnicalFouls         int     `json:"technicalFouls"`
+		Tpa                    int     `json:"tpa"`
+		Tpm                    int     `json:"tpm"`
+		Tppct                  float64 `json:"tppct"`
+		Turnovers              int     `json:"turnovers"`
+	} `json:"score"`
+	PointGameLeader struct {
+		Profile struct {
+			Code               string `json:"code"`
+			Country            string `json:"country"`
+			DisplayAffiliation string `json:"displayAffiliation"`
+			DisplayName        string `json:"displayName"`
+			DisplayNameEn      string `json:"displayNameEn"`
+			Dob                string `json:"dob"`
+			DraftYear          string `json:"draftYear"`
+			Experience         string `json:"experience"`
+			FirstInitial       string `json:"firstInitial"`
+			FirstName          string `json:"firstName"`
+			FirstNameEn        string `json:"firstNameEn"`
+			Height             string `json:"height"`
+			JerseyNo           string `json:"jerseyNo"`
+			LastName           string `json:"lastName"`
+			LastNameEn         string `json:"lastNameEn"`
+			LeagueID           string `json:"leagueId"`
+			PlayerID           string `json:"playerId"`
+			Position           string `json:"position"`
+			SchoolType         string `json:"schoolType"`
+			Weight             string `json:"weight"`
+		} `json:"profile"`
+		StatTotal struct {
+			Assists   int     `json:"assists"`
+			Blocks    int     `json:"blocks"`
+			DefRebs   int     `json:"defRebs"`
+			Fga       int     `json:"fga"`
+			Fgm       int     `json:"fgm"`
+			Fgpct     float64 `json:"fgpct"`
+			Fouls     int     `json:"fouls"`
+			Fta       int     `json:"fta"`
+			Ftm       int     `json:"ftm"`
+			Ftpct     float64 `json:"ftpct"`
+			Mins      int     `json:"mins"`
+			OffRebs   int     `json:"offRebs"`
+			Points    int     `json:"points"`
+			Rebs      int     `json:"rebs"`
+			Secs      int     `json:"secs"`
+			Steals    int     `json:"steals"`
+			Tpa       int     `json:"tpa"`
+			Tpm       int     `json:"tpm"`
+			Tppct     float64 `json:"tppct"`
+			Turnovers int     `json:"turnovers"`
+		} `json:"statTotal"`
+	} `json:"pointGameLeader"`
+	AssistGameLeader struct {
+		Profile struct {
+			Code               string `json:"code"`
+			Country            string `json:"country"`
+			DisplayAffiliation string `json:"displayAffiliation"`
+			DisplayName        string `json:"displayName"`
+			DisplayNameEn      string `json:"displayNameEn"`
+			Dob                string `json:"dob"`
+			DraftYear          string `json:"draftYear"`
+			Experience         string `json:"experience"`
+			FirstInitial       string `json:"firstInitial"`
+			FirstName          string `json:"firstName"`
+			FirstNameEn        string `json:"firstNameEn"`
+			Height             string `json:"height"`
+			JerseyNo           string `json:"jerseyNo"`
+			LastName           string `json:"lastName"`
+			LastNameEn         string `json:"lastNameEn"`
+			LeagueID           string `json:"leagueId"`
+			PlayerID           string `json:"playerId"`
+			Position           string `json:"position"`
+			SchoolType         string `json:"schoolType"`
+			Weight             string `json:"weight"`
+		} `json:"profile"`
+		StatTotal struct {
+			Assists   int     `json:"assists"`
+			Blocks    int     `json:"blocks"`
+			DefRebs   int     `json:"defRebs"`
+			Fga       int     `json:"fga"`
+			Fgm       int     `json:"fgm"`
+			Fgpct     float64 `json:"fgpct"`
+			Fouls     int     `json:"fouls"`
+			Fta       int     `json:"fta"`
+			Ftm       int     `json:"ftm"`
+			Ftpct     float64 `json:"ftpct"`
+			Mins      int     `json:"mins"`
+			OffRebs   int     `json:"offRebs"`
+			Points    int     `json:"points"`
+			Rebs      int     `json:"rebs"`
+			Secs      int     `json:"secs"`
+			Steals    int     `json:"steals"`
+			Tpa       int     `json:"tpa"`
+			Tpm       int     `json:"tpm"`
+			Tppct     float64 `json:"tppct"`
+			Turnovers int     `json:"turnovers"`
+		} `json:"statTotal"`
+	} `json:"assistGameLeader"`
+	ReboundGameLeader struct {
+		Profile struct {
+			Code               string `json:"code"`
+			Country            string `json:"country"`
+			DisplayAffiliation string `json:"displayAffiliation"`
+			DisplayName        string `json:"displayName"`
+			DisplayNameEn      string `json:"displayNameEn"`
+			Dob                string `json:"dob"`
+			DraftYear          string `json:"draftYear"`
+			Experience         string `json:"experience"`
+			FirstInitial       string `json:"firstInitial"`
+			FirstName          string `json:"firstName"`
+			FirstNameEn        string `json:"firstNameEn"`
+			Height             string `json:"height"`
+			JerseyNo           string `json:"jerseyNo"`
+			LastName           string `json:"lastName"`
+			LastNameEn         string `json:"lastNameEn"`
+			LeagueID           string `json:"leagueId"`
+			PlayerID           string `json:"playerId"`
+			Position           string `json:"position"`
+			SchoolType         string `json:"schoolType"`
+			Weight             string `json:"weight"`
+		} `json:"profile"`
+		StatTotal struct {
+			Assists   int     `json:"assists"`
+			Blocks    int     `json:"blocks"`
+			DefRebs   int     `json:"defRebs"`
+			Fga       int     `json:"fga"`
+			Fgm       int     `json:"fgm"`
+			Fgpct     float64 `json:"fgpct"`
+			Fouls     int     `json:"fouls"`
+			Fta       int     `json:"fta"`
+			Ftm       int     `json:"ftm"`
+			Ftpct     float64 `json:"ftpct"`
+			Mins      int     `json:"mins"`
+			OffRebs   int     `json:"offRebs"`
+			Points    int     `json:"points"`
+			Rebs      int     `json:"rebs"`
+			Secs      int     `json:"secs"`
+			Steals    int     `json:"steals"`
+			Tpa       int     `json:"tpa"`
+			Tpm       int     `json:"tpm"`
+			Tppct     float64 `json:"tppct"`
+			Turnovers int     `json:"turnovers"`
+		} `json:"statTotal"`
+	} `json:"reboundGameLeader"`
+}
+
+type GamePlayers struct {
+	Profile struct {
+		Code               string `json:"code"`
+		Country            string `json:"country"`
+		DisplayAffiliation string `json:"displayAffiliation"`
+		DisplayName        string `json:"displayName"`
+		DisplayNameEn      string `json:"displayNameEn"`
+		Dob                string `json:"dob"`
+		DraftYear          string `json:"draftYear"`
+		Experience         string `json:"experience"`
+		FirstInitial       string `json:"firstInitial"`
+		FirstName          string `json:"firstName"`
+		FirstNameEn        string `json:"firstNameEn"`
+		Height             string `json:"height"`
+		JerseyNo           string `json:"jerseyNo"`
+		LastName           string `json:"lastName"`
+		LastNameEn         string `json:"lastNameEn"`
+		LeagueID           string `json:"leagueId"`
+		PlayerID           string `json:"playerId"`
+		Position           string `json:"position"`
+		SchoolType         string `json:"schoolType"`
+		Weight             string `json:"weight"`
+	} `json:"profile"`
+	Boxscore struct {
+		DnpReason string `json:"dnpReason"`
+		IsStarter string `json:"isStarter"`
+		OnCourt   string `json:"onCourt"`
+		Order     int    `json:"order"`
+		PlusMinus string `json:"plusMinus"`
+		Position  string `json:"position"`
+	} `json:"boxscore"`
+	StatTotal struct {
+		Assists   int     `json:"assists"`
+		Blocks    int     `json:"blocks"`
+		DefRebs   int     `json:"defRebs"`
+		Fga       int     `json:"fga"`
+		Fgm       int     `json:"fgm"`
+		Fgpct     float64 `json:"fgpct"`
+		Fouls     int     `json:"fouls"`
+		Fta       int     `json:"fta"`
+		Ftm       int     `json:"ftm"`
+		Ftpct     float64 `json:"ftpct"`
+		Mins      int     `json:"mins"`
+		OffRebs   int     `json:"offRebs"`
+		Points    int     `json:"points"`
+		Rebs      int     `json:"rebs"`
+		Secs      int     `json:"secs"`
+		Steals    int     `json:"steals"`
+		Tpa       int     `json:"tpa"`
+		Tpm       int     `json:"tpm"`
+		Tppct     float64 `json:"tppct"`
+		Turnovers int     `json:"turnovers"`
+	} `json:"statTotal"`
 }

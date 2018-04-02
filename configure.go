@@ -26,6 +26,7 @@ var (
 	_fontPath                string
 	nbaAPIScoresURL          string
 	nbaAPIGameSnapshotURL    string
+	nbaAPIGameSnapshotENURL  string
 	nbaConferenceStandingAPI string
 )
 
@@ -68,7 +69,7 @@ func init() {
 	}
 
 	nbaAPIScoresURL = nbaAPIURL + "/stats2/scores/daily.json?countryCode=TW&locale=zh_TW&tz=%2B8"
-	nbaAPIGameSnapshotURL = nbaAPIURL + "/stats2/game/snapshot.json?countryCode=TW&locale=zh_TW&gameId=%s"
+	nbaAPIGameSnapshotURL = nbaAPIURL + "/stats2/game/snapshot.json?countryCode=TW&locale=%s&gameId=%s"
 	nbaConferenceStandingAPI = nbaAPIURL + "/stats2/season/conferencestanding.json?locale=zh_TW"
 
 	_localZone, err = time.LoadLocation("Asia/Taipei")

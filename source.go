@@ -44,8 +44,8 @@ func getNBAGame(url string) (*GameInfo, error) {
 	return &data, err
 }
 
-func GetNBAGamePlayerByGameID(id string) (*GamePlayerInfo, error) {
-	url := fmt.Sprintf(nbaAPIGameSnapshotURL, id)
+func GetNBAGamePlayerByGameID(id string, locale string) (*GamePlayerInfo, error) {
+	url := fmt.Sprintf(nbaAPIGameSnapshotURL, locale, id)
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Printf("error: get error %v", err)
