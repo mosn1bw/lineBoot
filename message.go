@@ -322,21 +322,21 @@ func (app *NBABotClient) handlePostBack(data string, replyToken string) {
 	}
 	msgType := dataArr[0]
 	action := dataArr[1]
-	gameID := dataArr[2]
+	payload := dataArr[2]
 
 	switch msgType {
 	case "player":
 		timestamp := strconv.FormatInt(time.Now().Unix(), 10)
-		imageUrl := app.appBaseURL + "/game/" + gameID + "/" + action + "?version=" + timestamp
+		imageURL := app.appBaseURL + "/game/" + payload + "/" + action + "?version=" + timestamp
 		if _, err := app.bot.ReplyMessage(
 			replyToken,
-			linebot.NewImageMessage(imageUrl, imageUrl),
+			linebot.NewImageMessage(imageURL, imageURL),
 		).Do(); err != nil {
-			log.Printf("GetNBAGamePlayerByGameID imageUrl err: %v", err)
+			log.Printf("GetNBAGamePlayerByGameID imageURL err: %v", err)
 		}
 		app.CounterIncs("#比賽數據統計")
 	case "score":
-		pInfo, err := GetNBAGamePlayerByGameID(gameID, "zh_TW")
+		pInfo, err := GetNBAGamePlayerByGameID(payload, "zh_TW")
 		if err != nil {
 			log.Printf("score GetNBAGamePlayerByGameID err: %v", err)
 			return
@@ -356,6 +356,14 @@ func (app *NBABotClient) handlePostBack(data string, replyToken string) {
 			}
 		}
 		app.CounterIncs("更新比分")
+	case "echo":
+		msg := payload
+		if _, err := app.bot.ReplyMessage(
+			replyToken,
+			linebot.NewTextMessage(msg),
+		).Do(); err != nil {
+			return
+		}
 	}
 
 }
@@ -466,7 +474,8 @@ func (app *NBABotClient) ParseGameScoreInfoToMessage(opt *ParseGameScoreOpt) lin
 			bt3 = linebot.NewPostbackTemplateAction(btnName3, btnData3, "", "")
 		case "3": // 3: 結束
 			gameInfo = fmt.Sprintf(" %3d - %3d | %s %s", homeScore, awayScore, val.Boxscore.StatusDesc, val.Boxscore.PeriodClock)
-			bt3 = linebot.NewURITemplateAction("觀看 Highlights", val.HighlightsURL)
+			urlInfo := fmt.Sprintf("#%d %s vs %s Highlights:\n %s", index+1, homeTeamName, awayTeamName, val.HighlightsURL)
+			bt3 = linebot.NewPostbackTemplateAction("觀看 Highlights", "echo@msg@"+urlInfo, "", "")
 		}
 		teamMessage := fmt.Sprintf("#%d %s vs %s\n      %s", index+1, homeTeamName, awayTeamName, gameInfo)
 		message += teamMessage + "\n"
