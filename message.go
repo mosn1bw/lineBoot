@@ -413,7 +413,7 @@ func (app *NBABotClient) ParseGameScoreInfoToMessage(opt *ParseGameScoreOpt) lin
 	listBtnText := "更新比分"
 	listBtnCmd := opt.cmd
 	if gameNum > 7 {
-		perPage := gameNum / 2
+		perPage := (gameNum + gameNum%2) / 2
 		startIndex = perPage * (page - 1)
 		endIndex = perPage * page
 		if startIndex >= gameNum {
