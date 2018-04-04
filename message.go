@@ -417,7 +417,7 @@ func (app *NBABotClient) ParseGameScoreInfoToMessage(opt *ParseGameScoreOpt) lin
 		startIndex = perPage * (page - 1)
 		endIndex = perPage * page
 		if startIndex >= gameNum {
-			app.ParseGameScoreInfoToMessage(&ParseGameScoreOpt{
+			return app.ParseGameScoreInfoToMessage(&ParseGameScoreOpt{
 				data:     data,
 				page:     page - 1,
 				cmd:      opt.cmd,
