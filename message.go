@@ -222,7 +222,7 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 		if err != nil {
 			log.Printf("GetLocalTimeNow error: %v", err)
 		}
-		tomorrow := today.Add(2 * 24 * time.Hour)
+		tomorrow := today.Add(24 * time.Hour)
 		data, err := GetNBAGameByDate(&tomorrow)
 		if err != nil {
 			log.Printf("GetNBAGameByDate error :%v, %v", tomorrow, err)
