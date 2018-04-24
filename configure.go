@@ -28,6 +28,7 @@ var (
 	nbaAPIGameSnapshotURL    string
 	nbaAPIGameSnapshotENURL  string
 	nbaConferenceStandingAPI string
+	nbaBracketURL            string
 )
 
 func init() {
@@ -71,6 +72,7 @@ func init() {
 	nbaAPIScoresURL = nbaAPIURL + "/stats2/scores/daily.json?countryCode=TW&locale=zh_TW&tz=%2B8"
 	nbaAPIGameSnapshotURL = nbaAPIURL + "/stats2/game/snapshot.json?countryCode=TW&locale=%s&gameId=%s"
 	nbaConferenceStandingAPI = nbaAPIURL + "/stats2/season/conferencestanding.json?locale=zh_TW"
+	nbaBracketURL = nbaAPIURL + "/stats2/playoff/bracket.json?locale=zh_TW"
 
 	_localZone, err = time.LoadLocation("Asia/Taipei")
 	if err != nil {

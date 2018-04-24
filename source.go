@@ -86,3 +86,24 @@ func GetNBAConferenceStanding() (*ConferenceStanding, error) {
 	json.Unmarshal(body, &data)
 	return &data, err
 }
+
+func GetNBAPlayoffs() (*BracketInfo, error) {
+	resp, err := http.Get(nbaBracketURL)
+	if err != nil {
+		log.Printf("error: get error %v", err)
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		log.Printf("error: get fail %s", resp.Body)
+		return nil, fmt.Errorf("status code error %v", resp.Body)
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("error: ReadAll error %v", err)
+		return nil, err
+	}
+	data := BracketInfo{}
+	json.Unmarshal(body, &data)
+	return &data, err
+}

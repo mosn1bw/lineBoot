@@ -1273,3 +1273,120 @@ type GamePlayers struct {
 		Turnovers int     `json:"turnovers"`
 	} `json:"statTotal"`
 }
+
+type BracketInfo struct {
+	Context struct {
+		User struct {
+			CountryCode  string `json:"countryCode"`
+			CountryName  string `json:"countryName"`
+			Locale       string `json:"locale"`
+			TimeZone     string `json:"timeZone"`
+			TimeZoneCity string `json:"timeZoneCity"`
+		} `json:"user"`
+		Device struct {
+			Clazz interface{} `json:"clazz"`
+		} `json:"device"`
+	} `json:"context"`
+	Error struct {
+		Detail  interface{} `json:"detail"`
+		IsError string      `json:"isError"`
+		Message interface{} `json:"message"`
+	} `json:"error"`
+	Payload struct {
+		League struct {
+			ID   string `json:"id"`
+			Name string `json:"name"`
+		} `json:"league"`
+		Season struct {
+			IsCurrent               string `json:"isCurrent"`
+			RosterSeasonType        int    `json:"rosterSeasonType"`
+			RosterSeasonYear        string `json:"rosterSeasonYear"`
+			RosterSeasonYearDisplay string `json:"rosterSeasonYearDisplay"`
+			ScheduleSeasonType      int    `json:"scheduleSeasonType"`
+			ScheduleSeasonYear      string `json:"scheduleSeasonYear"`
+			ScheduleYearDisplay     string `json:"scheduleYearDisplay"`
+			StatsSeasonType         int    `json:"statsSeasonType"`
+			StatsSeasonYear         string `json:"statsSeasonYear"`
+			StatsSeasonYearDisplay  string `json:"statsSeasonYearDisplay"`
+			Year                    string `json:"year"`
+			YearDisplay             string `json:"yearDisplay"`
+		} `json:"season"`
+		Champion interface{} `json:"champion"`
+		Groups   []struct {
+			Rounds []struct {
+				Series []struct {
+					HighSeedOrWest *struct {
+						Profile struct {
+							Abbr              string `json:"abbr"`
+							City              string `json:"city"`
+							CityEn            string `json:"cityEn"`
+							Code              string `json:"code"`
+							Conference        string `json:"conference"`
+							DisplayAbbr       string `json:"displayAbbr"`
+							DisplayConference string `json:"displayConference"`
+							Division          string `json:"division"`
+							ID                string `json:"id"`
+							IsAllStarTeam     bool   `json:"isAllStarTeam"`
+							IsLeagueTeam      bool   `json:"isLeagueTeam"`
+							LeagueID          string `json:"leagueId"`
+							Name              string `json:"name"`
+							NameEn            string `json:"nameEn"`
+						} `json:"profile"`
+						Standing struct {
+							Clinched    string `json:"clinched"`
+							ConfRank    int    `json:"confRank"`
+							DivRank     int    `json:"divRank"`
+							Last10      string `json:"last10"`
+							Losses      int    `json:"losses"`
+							OnHotStreak string `json:"onHotStreak"`
+							Streak      string `json:"streak"`
+							Wins        int    `json:"wins"`
+						} `json:"standing"`
+						IsWinner  bool `json:"isWinner"`
+						IsWinning bool `json:"isWinning"`
+					} `json:"highSeedOrWest"`
+					LowSeedOrEast *struct {
+						Profile struct {
+							Abbr              string `json:"abbr"`
+							City              string `json:"city"`
+							CityEn            string `json:"cityEn"`
+							Code              string `json:"code"`
+							Conference        string `json:"conference"`
+							DisplayAbbr       string `json:"displayAbbr"`
+							DisplayConference string `json:"displayConference"`
+							Division          string `json:"division"`
+							ID                string `json:"id"`
+							IsAllStarTeam     bool   `json:"isAllStarTeam"`
+							IsLeagueTeam      bool   `json:"isLeagueTeam"`
+							LeagueID          string `json:"leagueId"`
+							Name              string `json:"name"`
+							NameEn            string `json:"nameEn"`
+						} `json:"profile"`
+						Standing struct {
+							Clinched    string `json:"clinched"`
+							ConfRank    int    `json:"confRank"`
+							DivRank     int    `json:"divRank"`
+							Last10      string `json:"last10"`
+							Losses      int    `json:"losses"`
+							OnHotStreak string `json:"onHotStreak"`
+							Streak      string `json:"streak"`
+							Wins        int    `json:"wins"`
+						} `json:"standing"`
+						IsWinner  bool `json:"isWinner"`
+						IsWinning bool `json:"isWinning"`
+					} `json:"lowSeedOrEast"`
+					RecentHighlight string `json:"recentHighlight"`
+					SeriesNo        string `json:"seriesNo"`
+					SeriesText      string `json:"seriesText"`
+				} `json:"series"`
+				DisplayRoundName string `json:"displayRoundName"`
+				RoundName        string `json:"roundName"`
+				RoundNo          string `json:"roundNo"`
+			} `json:"rounds"`
+			GroupName string `json:"groupName"`
+		} `json:"groups"`
+		LatestRoundNo       string `json:"latestRoundNo"`
+		LowestActiveRoundNo string `json:"lowestActiveRoundNo"`
+	} `json:"payload"`
+	Timestamp string `json:"timestamp"`
+}

@@ -35,12 +35,14 @@ var (
 	EasternConferenceStandingStr = "東區戰績"
 	WesternConferenceStandingStr = "西區戰績"
 	GamePlayerBoxExpStr          = "數據統計說明"
+	GamePlayoffsStr              = "季後賽戰績"
 	CmdTodayGame                 = _cmd_prefix + TodayGameStr
 	CmdTomorrowGame              = _cmd_prefix + TomorrowGameStr
 	CmdYesterdayGame             = _cmd_prefix + YesterdayGameStr
 	CmdEasternConferenceStanding = _cmd_prefix + EasternConferenceStandingStr
 	CmdWesternConferenceStanding = _cmd_prefix + WesternConferenceStandingStr
 	CmdGamePlayerBoxExp          = _cmd_prefix + GamePlayerBoxExpStr
+	CmdGamePlayoffs              = _cmd_prefix + GamePlayoffsStr
 )
 
 var CmdArray = []string{
@@ -50,6 +52,7 @@ var CmdArray = []string{
 	CmdEasternConferenceStanding,
 	CmdWesternConferenceStanding,
 	CmdGamePlayerBoxExp,
+	CmdGamePlayoffs,
 }
 
 type NBABotClient struct {
@@ -299,6 +302,16 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 			linebot.NewImageMessage(imageUrl, imageUrl),
 		).Do(); err != nil {
 			log.Printf("CmdGamePlayerBoxExp imageUrl err: %v", err)
+		}
+		app.CounterIncs(recMsg)
+	case CmdGamePlayoffs:
+		timestamp := strconv.FormatInt(time.Now().Unix(), 10)
+		imageUrl := app.appBaseURL + "/standing/playoffs?version=" + timestamp
+		if _, err := app.bot.ReplyMessage(
+			replyToken,
+			linebot.NewImageMessage(imageUrl, imageUrl),
+		).Do(); err != nil {
+			log.Printf("CmdGamePlayoffs imageUrl err: %v", err)
 		}
 		app.CounterIncs(recMsg)
 	default:
@@ -694,6 +707,48 @@ func (app *NBABotClient) ParseConferenceStandingToImgMessage(c *gin.Context, dat
 	convertTextArrToTableImage(c, []*TextToImageOpt{opt}, title)
 }
 
+func (aoo *NBABotClient) ParsePlayoffsToImgMessage(c *gin.Context, data *BracketInfo) {
+	title := "季後賽對戰表"
+	teamFormat := "%s vs %s"
+
+	opts := []*TextToImageOpt{}
+
+	for _, group := range data.Payload.Groups {
+		gName := ""
+		groupName := group.GroupName // Western, Eastern, Finals
+		if len(group.Rounds) == 0 {
+			continue
+		}
+		if groupName == "Eastern" {
+			gName = "東區"
+		} else if groupName == "Western" {
+			gName = "西區"
+		}
+		for _, round := range group.Rounds {
+			opt := TextToImageOpt{}
+			opt.SubTitle = gName + " - " + round.DisplayRoundName
+
+			messageArr := [][]string{}
+			for _, series := range round.Series {
+				if series.LowSeedOrEast == nil || series.HighSeedOrWest == nil {
+					continue
+				}
+				// 火箭 vs 灰狼
+				team := fmt.Sprintf(teamFormat, series.HighSeedOrWest.Profile.Name, series.LowSeedOrEast.Profile.Name)
+				// 平手 2 - 2
+				result := series.SeriesText
+				messageArr = append(messageArr, []string{team, result})
+			}
+			if len(messageArr) == 0 {
+				continue
+			}
+			opt.TextData = messageArr
+			opts = append(opts, &opt)
+		}
+	}
+	convertTextArrToTableImage(c, opts, title)
+}
+
 type TextToImageOpt struct {
 	Title    string
 	SubTitle string
@@ -837,12 +892,21 @@ func (app *NBABotClient) getGamePlayInfoEN(c *gin.Context) {
 
 func (app *NBABotClient) getStandingInfo(c *gin.Context) {
 	conference := c.Param("conference")
-	data, err := GetNBAConferenceStanding()
-	if err != nil {
-		log.Printf("getStandingInfo err: %v", err)
+	if conference == "playoffs" {
+		data, err := GetNBAPlayoffs()
+		if err != nil {
+			log.Printf("GetNBAPlayoffs err: %v", err)
+		}
+		app.ParsePlayoffsToImgMessage(c, data)
+		app.CounterIncs("季後賽圖片")
+	} else {
+		data, err := GetNBAConferenceStanding()
+		if err != nil {
+			log.Printf("getStandingInfo err: %v", err)
+		}
+		app.ParseConferenceStandingToImgMessage(c, data, conference)
+		app.CounterIncs("戰績圖片")
 	}
-	app.CounterIncs("戰績圖片")
-	app.ParseConferenceStandingToImgMessage(c, data, conference)
 }
 
 func getRealTextLength(str string) int {
