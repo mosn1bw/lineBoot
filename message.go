@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"log"
 	"math"
+	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
@@ -1013,4 +1014,13 @@ func (app *NBABotClient) getGameColumnInfo(c *gin.Context) {
 			TextData: data,
 		},
 	}, "數據統計說明")
+}
+
+func (app *NBABotClient) ListMessages(c *gin.Context) {
+	allMessages, err := ListMessages()
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	c.JSON(http.StatusOK, allMessages)
 }

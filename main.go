@@ -31,6 +31,8 @@ func main() {
 	// admin
 	router.GET("/statistic", app.Statistic)
 
+	router.GET("/messages", app.ListMessages)
+
 	srv := &http.Server{
 		Addr:    ":" + _config.Bind,
 		Handler: router,
