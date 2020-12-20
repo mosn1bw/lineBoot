@@ -8,8 +8,6 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 	github.com/lib/pq v1.1.1
 	github.com/line/line-bot-sdk-go v7.7.0+incompatible
-	github.com/mlytics/go-util v2.0.0+incompatible
-	github.com/sirupsen/logrus v1.7.0 // indirect
 	golang.org/x/image v0.0.0-20201208152932-35266b937fa6
 	gopkg.in/gormigrate.v1 v1.6.0
 	gopkg.in/yaml.v2 v2.4.0

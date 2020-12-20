@@ -1,13 +1,14 @@
 package main
 
 import (
+	"log"
+
 	"github.com/jinzhu/gorm"
-	"github.com/mlytics/go-util/log"
 	"gopkg.in/gormigrate.v1"
 )
 
 func Migrate() {
-	log.Info("Start Migration")
+	log.Printf("Start Migration")
 
 	m := gormigrate.New(repo, gormigrate.DefaultOptions, []*gormigrate.Migration{
 		{
@@ -23,7 +24,7 @@ func Migrate() {
 
 	// TODO: add custom type
 	m.InitSchema(func(tx *gorm.DB) error {
-		log.Info("Create Tables...")
+		log.Printf("Create Tables...")
 		if err := repo.AutoMigrate().Error; err != nil {
 			return err
 		}
@@ -32,7 +33,7 @@ func Migrate() {
 	})
 
 	if err := m.Migrate(); err != nil {
-		log.WithError(err).Error("Database Migration Failed")
+		log.Fatal(err)
 	}
-	log.Info("Migrate Finished")
+	log.Printf("Migrate Finished")
 }
