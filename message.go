@@ -1022,5 +1022,28 @@ func (app *NBABotClient) ListMessages(c *gin.Context) {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
+	var messages []string
+	for _, m := range allMessages {
+		var mStr string
+		if len(m.GroupID) > 0 {
+			mStr += fmt.Sprintf("[Group][%s]", m.GroupID)
+		} else if len(m.RoomID) > 0 {
+			mStr += fmt.Sprintf("[Room][%s]", m.RoomID)
+		} else {
+			mStr += "[User]"
+		}
+		mStr += m.UserID
+		mStr += ": " + m.Message
+		messages = append(messages, mStr)
+	}
+	c.String(http.StatusOK, strings.Join(messages, "\n"))
+}
+
+func (app *NBABotClient) ListMessagesRawData(c *gin.Context) {
+	allMessages, err := ListMessages()
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
 	c.JSON(http.StatusOK, allMessages)
 }
