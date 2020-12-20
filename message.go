@@ -156,6 +156,7 @@ func (app *NBABotClient) CounterIncs(key string) {
 }
 
 func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken string, source *linebot.EventSource) error {
+	// save message
 	var sendMsg linebot.SendingMessage
 	var err error
 	log.Print(message.Text)

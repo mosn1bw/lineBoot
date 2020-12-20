@@ -25,7 +25,7 @@ func Migrate() {
 	// TODO: add custom type
 	m.InitSchema(func(tx *gorm.DB) error {
 		log.Printf("Create Tables...")
-		if err := repo.AutoMigrate().Error; err != nil {
+		if err := repo.AutoMigrate(&Message{}).Error; err != nil {
 			return err
 		}
 
