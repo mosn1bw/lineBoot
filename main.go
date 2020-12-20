@@ -13,6 +13,7 @@ import (
 
 func main() {
 	log.Print("Server Start...")
+	repo = NewDB()
 	app, err := NewNBABotClient(_config.Channel.Secret, _config.Channel.Token, _config.AppBaseURL)
 	if err != nil {
 		log.Fatal(err)
