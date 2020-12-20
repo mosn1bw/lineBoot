@@ -156,7 +156,7 @@ func (app *NBABotClient) CounterIncs(key string) {
 }
 
 func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken string, source *linebot.EventSource) error {
-	var sendMsg linebot.Message
+	var sendMsg linebot.SendingMessage
 	var err error
 	log.Print(message.Text)
 	recMsg := strings.Trim(message.Text, " ")
@@ -173,15 +173,15 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 	case "NBA":
 		column1 := linebot.NewCarouselColumn(
 			app.allGameImgURL, "NBA比分", "賽事即時比分",
-			linebot.NewPostbackTemplateAction(TodayGameStr, CmdTodayGame, CmdTodayGame, ""),
-			linebot.NewPostbackTemplateAction(TomorrowGameStr, CmdTomorrowGame, CmdTomorrowGame, ""),
-			linebot.NewPostbackTemplateAction(YesterdayGameStr, CmdYesterdayGame, CmdYesterdayGame, ""),
+			linebot.NewPostbackAction(TodayGameStr, CmdTodayGame, CmdTodayGame, ""),
+			linebot.NewPostbackAction(TomorrowGameStr, CmdTomorrowGame, CmdTomorrowGame, ""),
+			linebot.NewPostbackAction(YesterdayGameStr, CmdYesterdayGame, CmdYesterdayGame, ""),
 		)
 		column2 := linebot.NewCarouselColumn(
 			app.standingImgURL, "NBA戰績", "分區戰績",
-			linebot.NewPostbackTemplateAction("分區戰績", "#分區戰績", "#分區戰績", ""),
-			linebot.NewPostbackTemplateAction(EasternConferenceStandingStr, CmdEasternConferenceStanding, CmdEasternConferenceStanding, ""),
-			linebot.NewPostbackTemplateAction(WesternConferenceStandingStr, CmdWesternConferenceStanding, CmdWesternConferenceStanding, ""),
+			linebot.NewPostbackAction("分區戰績", "#分區戰績", "#分區戰績", ""),
+			linebot.NewPostbackAction(EasternConferenceStandingStr, CmdEasternConferenceStanding, CmdEasternConferenceStanding, ""),
+			linebot.NewPostbackAction(WesternConferenceStandingStr, CmdWesternConferenceStanding, CmdWesternConferenceStanding, ""),
 		)
 		columns := []*linebot.CarouselColumn{
 			column1,
@@ -195,8 +195,8 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 	case "#分區戰績":
 		buttons := linebot.NewButtonsTemplate(
 			app.standingImgURL, "NBA功能列表", "戰績",
-			linebot.NewMessageTemplateAction("東區戰績", CmdEasternConferenceStanding),
-			linebot.NewMessageTemplateAction("西區戰績", CmdWesternConferenceStanding),
+			linebot.NewMessageAction("東區戰績", CmdEasternConferenceStanding),
+			linebot.NewMessageAction("西區戰績", CmdWesternConferenceStanding),
 		)
 		cmdLine := strings.Join(CmdArray, " | ")
 		if _, err := app.bot.ReplyMessage(
@@ -407,7 +407,7 @@ type ParseGameScoreOpt struct {
 	showList bool
 }
 
-func (app *NBABotClient) ParseGameScoreInfoToMessage(opt *ParseGameScoreOpt) linebot.Message {
+func (app *NBABotClient) ParseGameScoreInfoToMessage(opt *ParseGameScoreOpt) linebot.SendingMessage {
 	data := opt.data
 	gameNum := len(data)
 	page := opt.page
@@ -450,9 +450,9 @@ func (app *NBABotClient) ParseGameScoreInfoToMessage(opt *ParseGameScoreOpt) lin
 		message += fmt.Sprintf("%s：%s\n", listBtnText, listBtnCmd)
 		firstColumn := linebot.NewCarouselColumn(
 			app.allGameImgURL, "賽事選單", "賽事選單",
-			linebot.NewPostbackTemplateAction(listBtnText, listBtnText, listBtnCmd, ""),
-			linebot.NewPostbackTemplateAction("數據統計說明", "數據統計說明", "#數據統計說明", ""),
-			linebot.NewPostbackTemplateAction("功能列表", "功能列表", "NBA", ""),
+			linebot.NewPostbackAction(listBtnText, listBtnText, listBtnCmd, ""),
+			linebot.NewPostbackAction("數據統計說明", "數據統計說明", "#數據統計說明", ""),
+			linebot.NewPostbackAction("功能列表", "功能列表", "NBA", ""),
 		)
 		columns = append(columns, firstColumn)
 	}
@@ -480,15 +480,15 @@ func (app *NBABotClient) ParseGameScoreInfoToMessage(opt *ParseGameScoreOpt) lin
 		case "1": // 1: 未開賽
 			btnName3 += "未開賽"
 			gameInfo = fmt.Sprintf("未開賽 | %s ", val.GameTime)
-			bt3 = linebot.NewPostbackTemplateAction(btnName3, btnData3, "", "")
+			bt3 = linebot.NewPostbackAction(btnName3, btnData3, "", "")
 		case "2": // 2: 比賽中
 			btnName3 += "進行中"
 			gameInfo = fmt.Sprintf(" %3d - %3d | %s %s", homeScore, awayScore, val.Boxscore.StatusDesc, val.Boxscore.PeriodClock)
-			bt3 = linebot.NewPostbackTemplateAction(btnName3, btnData3, "", "")
+			bt3 = linebot.NewPostbackAction(btnName3, btnData3, "", "")
 		case "3": // 3: 結束
 			gameInfo = fmt.Sprintf(" %3d - %3d | %s %s", homeScore, awayScore, val.Boxscore.StatusDesc, val.Boxscore.PeriodClock)
 			urlInfo := fmt.Sprintf("#%d %s vs %s Highlights:\n %s", index+1, homeTeamName, awayTeamName, val.HighlightsURL)
-			bt3 = linebot.NewPostbackTemplateAction("觀看 Highlights", "echo@msg@"+urlInfo, "", "")
+			bt3 = linebot.NewPostbackAction("觀看 Highlights", "echo@msg@"+urlInfo, "", "")
 		}
 		teamMessage := fmt.Sprintf("#%d %s vs %s\n      %s", index+1, homeTeamName, awayTeamName, gameInfo)
 		message += teamMessage + "\n"
@@ -498,8 +498,8 @@ func (app *NBABotClient) ParseGameScoreInfoToMessage(opt *ParseGameScoreOpt) lin
 
 		column := linebot.NewCarouselColumn(
 			app.nbaImgURL, teamVS, gameInfo,
-			linebot.NewPostbackTemplateAction(btnName1, btnData1, "", ""),
-			linebot.NewPostbackTemplateAction(btnName2, btnData2, "", ""),
+			linebot.NewPostbackAction(btnName1, btnData1, "", ""),
+			linebot.NewPostbackAction(btnName2, btnData2, "", ""),
 			bt3,
 		)
 		columns = append(columns, column)
