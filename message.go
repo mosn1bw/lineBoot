@@ -156,10 +156,19 @@ func (app *NBABotClient) CounterIncs(key string) {
 }
 
 func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken string, source *linebot.EventSource) error {
-	// save message
+	go func() {
+		if _, err := CreateMessage(Message{
+			UserID:    source.UserID,
+			GroupID:   source.GroupID,
+			RoomID:    source.RoomID,
+			MessageID: message.ID,
+			Message:   message.Text,
+		}); err != nil {
+			log.Printf("error: %s\n", err.Error())
+		}
+	}()
 	var sendMsg linebot.SendingMessage
 	var err error
-	log.Print(message.Text)
 	recMsg := strings.Trim(message.Text, " ")
 	recMsg = strings.ToUpper(recMsg)
 	recMsgArr := strings.Split(recMsg, "@")
