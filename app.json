@@ -1,5 +1,5 @@
 {
-    "name": "nba-lineBot",
+  "name": "nba-lineBot",
     "description": "Line Bot API nba",
     "repository": "https://github.com/kunhou/nba-lineBot",
     "keywords": ["Line", "go", "static"],
@@ -9,6 +9,16 @@
       },
       {
         "url": "heroku/go"
-      }
-    ]
+    }
+  ],
+  "env": {
+    "ChannelAccessToken": {
+      "description": "Channel Access Token",
+      "required": true
+    },
+    "ChannelSecret": {
+      "description": "Channel Secret",
+      "required": true
+    }
   }
+}
