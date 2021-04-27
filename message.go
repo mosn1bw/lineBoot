@@ -26,7 +26,7 @@ import (
 )
 
 const (
-	_cmd_prefix = "#"
+	_cmd_prefix = "a1"
 )
 
 var (
@@ -203,7 +203,7 @@ func (app *NBABotClient) handleText(message *linebot.TextMessage, replyToken str
 		template := linebot.NewCarouselTemplate(columns...)
 		sendMsg = linebot.NewTemplateMessage("支援命令: \n   "+cmdLine, template)
 		app.CounterIncs(recMsg)
-	case "#分區戰績":
+	case "#a2":
 		buttons := linebot.NewButtonsTemplate(
 			app.standingImgURL, "NBA功能列表", "戰績",
 			linebot.NewMessageAction("東區戰績", CmdEasternConferenceStanding),
@@ -434,7 +434,7 @@ func (app *NBABotClient) ParseGameScoreInfoToMessage(opt *ParseGameScoreOpt) lin
 	startIndex := 0
 	endIndex := gameNum
 
-	listBtnText := "更新比分"
+	listBtnText := "a3"
 	listBtnCmd := opt.cmd
 	if gameNum > 7 {
 		perPage := (gameNum + gameNum%2) / 2
@@ -452,7 +452,7 @@ func (app *NBABotClient) ParseGameScoreInfoToMessage(opt *ParseGameScoreOpt) lin
 			endIndex = gameNum
 		}
 		if page == 1 {
-			listBtnText = "下一頁"
+			listBtnText = "a4"
 			listBtnCmd += fmt.Sprintf("@%d", page+1)
 		}
 	}
@@ -488,15 +488,15 @@ func (app *NBABotClient) ParseGameScoreInfoToMessage(opt *ParseGameScoreOpt) lin
 
 		var bt3 linebot.TemplateAction
 		switch status {
-		case "1": // 1: 未開賽
+		case "s1": // 1: 未開賽
 			btnName3 += "未開賽"
 			gameInfo = fmt.Sprintf("未開賽 | %s ", val.GameTime)
 			bt3 = linebot.NewPostbackAction(btnName3, btnData3, "", "")
-		case "2": // 2: 比賽中
+		case "s2": // 2: 比賽中
 			btnName3 += "進行中"
 			gameInfo = fmt.Sprintf(" %3d - %3d | %s %s", homeScore, awayScore, val.Boxscore.StatusDesc, val.Boxscore.PeriodClock)
 			bt3 = linebot.NewPostbackAction(btnName3, btnData3, "", "")
-		case "3": // 3: 結束
+		case "s3": // 3: 結束
 			gameInfo = fmt.Sprintf(" %3d - %3d | %s %s", homeScore, awayScore, val.Boxscore.StatusDesc, val.Boxscore.PeriodClock)
 			urlInfo := fmt.Sprintf("#%d %s vs %s Highlights:\n %s", index+1, homeTeamName, awayTeamName, val.HighlightsURL)
 			bt3 = linebot.NewPostbackAction("觀看 Highlights", "echo@msg@"+urlInfo, "", "")
@@ -521,7 +521,7 @@ func (app *NBABotClient) ParseGameScoreInfoToMessage(opt *ParseGameScoreOpt) lin
 	return linebot.NewTemplateMessage(message, template)
 }
 
-var PlayerInfoColumn = []string{"球員", "位置", "上場時間", "得分", "籃板", "助攻"}
+var PlayerInfoColumn = []string{"a4", "位置", "上場時間", "得分", "籃板", "助攻"}
 
 func (app *NBABotClient) ParsePlayInfoToImgMessage(c *gin.Context, pInfo *GamePlayerInfo, teamType string) {
 	title := UtcMillis2TimeString(pInfo.Payload.GameProfile.UtcMillis, DATE_TIME_LAYOUT)
@@ -618,8 +618,8 @@ type StaticsColumn struct {
 }
 
 var PlayerInfoDetailMapColumn = []StaticsColumn{
-	{CName: "姓名", EName: "PLAYERS"},
-	{CName: "位置", EName: "POS"},
+	{CName: "a5", EName: "PLAYERS"},
+	{CName: "a6", EName: "POS"},
 	{CName: "上場時間", EName: "MIN"},
 	{CName: "投籃命中-投籃出手", EName: "FGM-A"},
 	{CName: "三分球命中數-三分球出手數", EName: "3PM-A"},
@@ -683,7 +683,7 @@ func playInfoToDetailMsgArr(pInfo *GamePlayerInfo, teamType string) [][]string {
 	return messageArr
 }
 
-var StandingInfoColumn = []string{"", "排名", "勝負", "勝差"}
+var StandingInfoColumn = []string{"", "a7", "勝負", "勝差"}
 
 func (app *NBABotClient) ParseConferenceStandingToImgMessage(c *gin.Context, data *ConferenceStanding, conference string) {
 	messageArr := [][]string{}
@@ -709,7 +709,7 @@ func (app *NBABotClient) ParseConferenceStandingToImgMessage(c *gin.Context, dat
 	opt := &TextToImageOpt{
 		TextData: messageArr,
 	}
-	if conference == "Eastern" {
+	if conference == "a8" {
 		title = "東區戰績"
 	} else {
 		title = "西區戰績"
